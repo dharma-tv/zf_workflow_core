@@ -1,0 +1,81 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.4.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'war'
+}
+
+group = 'com.zanflow'
+sourceCompatibility = 8
+
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	/*
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testCompile 'com.jayway.jsonpath:json-path'
+    providedCompile 'org.hibernate:hibernate-gradle-plugin:5.4.10.Final'
+    providedCompile 'org.camunda.bpm.model:camunda-bpmn-model:7.12.0'
+    providedCompile 'org.codehaus.groovy:groovy:3.0.0-rc-3'
+    providedCompile 'org.camunda.bpm.model:camunda-xml-model:7.12.0'
+	providedCompile 'io.springfox:springfox-swagger2:2.7.0'
+	providedCompile 'io.springfox:springfox-swagger-ui:2.7.0'
+	providedCompile 'org.jasypt:jasypt-hibernate4:1.9.0'
+	providedCompile 'io.jsonwebtoken:jjwt:0.9.1'
+	providedCompile 'javax.mail:mail:1.4.1'
+	providedCompile 'org.springframework.boot:spring-boot-starter-data-jpa'
+	providedCompile 'org.json:json:20190722'
+	providedCompile 'org.postgresql:postgresql'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	*/
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+	
+	implementation  'org.springframework.boot:spring-boot-starter-web'
+	//implementation group: 'io.springfox', name: 'springfox-spring-web', version: '2.0.1'
+	
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	//testcompileOnly 'com.jayway.jsonpath:json-path'
+    implementation group: 'org.hibernate', name: 'hibernate-gradle-plugin', version: '5.4.10.Final'
+    implementation group: 'org.camunda.bpm.model', name: 'camunda-bpmn-model', version: '7.12.0'
+    implementation group: 'org.codehaus.groovy', name: 'groovy', version: '3.0.0-rc-3'
+    implementation group: 'org.camunda.bpm.model', name: 'camunda-xml-model', version: '7.12.0'
+	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.7.0'
+	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.7.0'
+	implementation group: 'org.jasypt', name: 'jasypt-hibernate4', version: '1.9.0'
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+	implementation group: 'javax.mail', name: 'mail', version: '1.4.1'
+	implementation group: 'org.apache.pdfbox', name:'pdfbox-tools', version:'2.0.3'
+	implementation group: 'org.thymeleaf', name:'thymeleaf', version:'3.0.11.RELEASE'
+	implementation group: 'org.xhtmlrenderer', name:'flying-saucer-pdf', version:'9.1.20'
+	implementation group: 'org.json', name: 'json', version: '20190722'
+	implementation( 'com.amazonaws:aws-java-sdk-s3:1.11.750'){
+		exclude group: 'org.mortbay.jetty', module:'servlet-api'
+	}
+	
+	
+	
+	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//runtimeOnly 'org.postgresql:postgresql'
+	implementation 'org.postgresql:postgresql'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.0.6'
+
+}
+
+war {
+    classpath = classpath.filter {File file ->
+        return !((file.name).endsWith(".jar"))
+    }
+}
+
+test {
+	useJUnitPlatform()
+}

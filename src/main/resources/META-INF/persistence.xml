@@ -1,0 +1,31 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.2"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+    <!-- Define persistence unit -->
+    <persistence-unit name="zanflowhub">
+        <non-jta-data-source>java:comp/env/jdbc/zanflowDB</non-jta-data-source>
+        <properties>   
+             <property name="hibernate.show-sql" value="true"/>
+           <!-- <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified" />
+            <property name="hibernate.show-sql" value="true"/>
+            <property name="javax.persistence.jdbc.user" value="postgres" />
+            <property name="javax.persistence.jdbc.password" value="postgres" />
+            <property name="hibernate.default_schema" value="sandbox"/>
+            
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://zanflowdb-1.cvtvkxszdfev.ap-south-1.rds.amazonaws.com:5432/postgres?stringtype=unspecified" />
+            <property name="hibernate.show-sql" value="true"/>
+            <property name="javax.persistence.jdbc.user" value="zanflow" />
+            <property name="javax.persistence.jdbc.password" value="zanflow#2020" />
+            
+          
+            
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified" />
+            <property name="hibernate.show-sql" value="true"/>
+            <property name="javax.persistence.jdbc.user" value="postgres" />
+            <property name="javax.persistence.jdbc.password" value="postgres" />
+            <property name="hibernate.default_schema" value="sandbox"/>  -->
+        </properties>
+    </persistence-unit>
+</persistence>
