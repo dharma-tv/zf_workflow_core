@@ -19,6 +19,8 @@ import com.zanflow.bpmn.BPMNData;
 import com.zanflow.bpmn.dao.BPMNTaskDAO;
 import com.zanflow.bpmn.exception.ApplicationException;
 import com.zanflow.bpmn.model.BPMNTask;
+import com.zanflow.sec.dao.UserMgmtDAO;
+import com.zanflow.sec.model.User;
 
 //import groovy.lang.Binding;
 //import groovy.lang.GroovyShell;
@@ -105,8 +107,10 @@ public abstract class BasicElement
 	{
 		BPMNTask objBPMNTask=null;
 		BPMNTaskDAO objBPMNTaskDAO=null;
+		UserMgmtDAO objUserMgmtDAO=null;
 		try
 		{
+			
 			objBPMNTaskDAO=new BPMNTaskDAO(objBPMNData.getpUnitName());
 			objBPMNTask=new BPMNTask();
 			objBPMNTask.setBpmnId(objBPMNData.getBpmnId());
@@ -126,13 +130,21 @@ public abstract class BasicElement
 				String assignedUser = userTaskObj.getCamundaCandidateUsers();
 				String assignedRole = userTaskObj.getCamundaCandidateGroups();
 				
-				
+				System.out.println("----------------assignedUser-- "+ assignedUser + " -------------getInitatedBygetInitatedBy-- " + objBPMNData.getInitatedBy());
 				if(assignedUser!=null && assignedUser != "" ) 
 				{
 					if(assignedUser.startsWith("User:"))
 					{
 						assignedUser=assignedUser.replaceAll("User:", "");
 						assignedUser=(String)objBPMNData.getDataMap().get(assignedUser);
+					}else if(assignedUser.equalsIgnoreCase("Initiator")){
+						assignedUser= objBPMNData.getInitatedBy();
+					}else if(assignedUser.equalsIgnoreCase("Initiators_Manager")){
+						objUserMgmtDAO=new UserMgmtDAO(objBPMNData.getpUnitName());
+						User user = objUserMgmtDAO.findUser(objBPMNData.getInitatedBy());
+						if(user !=null) {
+							assignedUser= user.getManagerId();
+						}
 					}
 					objBPMNTask.setAssignedUser(assignedUser);
 				}
@@ -173,6 +185,14 @@ public abstract class BasicElement
 			{
 				try {
 					objBPMNTaskDAO.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if(objUserMgmtDAO!=null)
+			{
+				try {
+					objUserMgmtDAO.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -299,7 +319,7 @@ public abstract class BasicElement
 		{
 			for(BPMNTask objTaskJPAImpl:taskList)
 			{
-				System.out.println("checkTaskStatus#"+stepName+"#"+objTaskJPAImpl.getElementId()+"#"+objTaskJPAImpl.getStatusCode()+"#"+objTaskJPAImpl.getGateWayToken()+"#"+objBPMNData.getBpmnTask().getGateWayToken());
+				//System.out.println("checkTaskStatus#"+stepName+"#"+objTaskJPAImpl.getElementId()+"#"+objTaskJPAImpl.getStatusCode()+"#"+objTaskJPAImpl.getGateWayToken()+"#"+objBPMNData.getBpmnTask().getGateWayToken());
 				if(objBPMNData.getBpmnTask().getBpmnId().equals(objTaskJPAImpl.getBpmnId())&&objTaskJPAImpl.getElementId().equals(stepName) && objTaskJPAImpl.getStatusCode()==2 && 
 						(objTaskJPAImpl.getGateWayToken()==null || objTaskJPAImpl.getGateWayToken().equals(objBPMNData.getBpmnTask().getGateWayToken())))
 				{
@@ -414,7 +434,7 @@ public abstract class BasicElement
 //				Pattern p=Pattern.compile("#"+"(.*?)"+"#");
 //				Matcher m = p.matcher(resultTaskSubject);
 //				 while (m.find()) {
-//					 System.out.println(m.group(1));
+//					 //System.out.println(m.group(1));
 //					 keys.add(m.group(1));
 //				 }
 				String []keywords=resultTaskSubject.split(" ");
@@ -433,7 +453,7 @@ public abstract class BasicElement
 			for(Object key:keys)
 			{
 				Object value=dataMap.get(key);
-				System.out.println(key + " ------------- " + value);
+				//System.out.println(key + " ------------- " + value);
 				if(value!=null && value instanceof String)
 				{
 					resultTaskSubject = resultTaskSubject.replaceAll("zf."+key, value.toString());

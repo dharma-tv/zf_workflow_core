@@ -41,8 +41,22 @@ public class BPMNTask implements Serializable
 	protected String assignedUser;
 	protected String assignedRole;
 	protected String taskSubject;
+	protected String priority;
+	protected Timestamp taskCompleteDate;
+	protected Timestamp lastModifiedDate;
 	
-	
+	public Timestamp getTaskCompleteDate() {
+		return taskCompleteDate;
+	}
+	public void setTaskCompleteDate(Timestamp taskCompleteDate) {
+		this.taskCompleteDate = taskCompleteDate;
+	}
+	public Timestamp getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+	public void setLastModifiedDate(Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
 	public String getCompanyCode() {
 		return companyCode;
 	}
@@ -188,5 +202,10 @@ public class BPMNTask implements Serializable
 		this.completedBy = completedBy;
 	}
 	
-	
+	public String getPriority() {
+		return priority;
+	}
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
 }

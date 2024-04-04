@@ -12,6 +12,11 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,7 +41,7 @@ public class BPMNTaskDAO extends JPATransaction
 
 	public BPMNTaskDAO(String pJunitName)throws ApplicationException
 	{
-		System.out.println("#BpmnTaskDAO#pJunitName#"+pJunitName);
+		//System.out.println("#BpmnTaskDAO#pJunitName#"+pJunitName);
 		try {
             if(pJunitName != null && pJunitName.trim().length() > 0){
            	 strJPUnitName = pJunitName;
@@ -44,7 +49,7 @@ public class BPMNTaskDAO extends JPATransaction
             else {
            	 throw new ApplicationException("Arguments are NULL, Unable to create JPersistenceProvider.");
             }
-            System.out.println("#pJunitName#"+strJPUnitName);
+            //System.out.println("#pJunitName#"+strJPUnitName);
        	 	objJProvider = new JPersistenceProvider(strJPUnitName);
 		} catch (ApplicationException e) {
 			e.printStackTrace();
@@ -66,7 +71,7 @@ public class BPMNTaskDAO extends JPATransaction
 			{
 				this.objJProvider = objJProvider;
 				strJPUnitName = objJProvider.getpUnitName();
-				System.out.println("# BpmnTaskDAO objJProvider constructor invoked");
+				//System.out.println("# BpmnTaskDAO objJProvider constructor invoked");
 			}else{
 				throw new ApplicationException("BpmnTaskDAO : JPersistenceProvider is null");
 			}
@@ -89,7 +94,7 @@ public class BPMNTaskDAO extends JPATransaction
 		BPMNTask task = new BPMNTask();
 
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + id);
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + id);
 			if (id >= 0) {
 
 				task = (BPMNTask) objJProvider.find(BPMNTask.class, id);
@@ -102,7 +107,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return task;
 	}
@@ -114,7 +119,7 @@ public class BPMNTaskDAO extends JPATransaction
 		int timeDiff=0;
 
 		try {
-			System.out.println("#BpmnTaskDAO#findLastLockedTimeDiff#TaskId#" + id);
+			//System.out.println("#BpmnTaskDAO#findLastLockedTimeDiff#TaskId#" + id);
 			if (id >= 0) {
 
 				Object	obj = objJProvider.createNativeQuery("SELECT extract(epoch from (now() - ex.tasklockedtime )) / 60 FROM {h-schema}zf_txn_bpmntask ex where ex.bpmntaskid=:bpmntaskid").setParameter("bpmntaskid", id).getResultList().get(0);
@@ -126,14 +131,14 @@ public class BPMNTaskDAO extends JPATransaction
 			} else {
 				throw new ApplicationException("Task Id is invalid");
 			}
-		System.out.println("diff "+timeDiff );
+		//System.out.println("diff "+timeDiff );
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(new Exception(e));
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return timeDiff;
 	}
@@ -141,7 +146,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int deleteBPMNTask(long bpmnTaskId) throws ApplicationException 
 	{	
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#deleteBPMNTask#"+bpmnTaskId);
+		//System.out.println("#BpmnTaskDAO#deleteBPMNTask#"+bpmnTaskId);
 		int rows = 0;
 		try {
 			if (bpmnTaskId <= 0)
@@ -157,7 +162,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#deleteBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#deleteBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rows;
 
@@ -177,7 +182,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return newTask;
 	}
@@ -202,7 +207,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println( "#BpmnTaskDAO#updateBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println( "#BpmnTaskDAO#updateBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rows;
 	}
@@ -220,7 +225,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return newTask;
 	}
@@ -231,7 +236,7 @@ public class BPMNTaskDAO extends JPATransaction
 		BPMNProcessInfo objBPMNProcessInfo = null;
 
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + bpmnTxRefNo);
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + bpmnTxRefNo);
 			if (bpmnTxRefNo!=null && bpmnTxRefNo.length()>0) {
 
 				objBPMNProcessInfo = (BPMNProcessInfo) objJProvider.find(BPMNProcessInfo.class, bpmnTxRefNo);
@@ -244,7 +249,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return objBPMNProcessInfo;
 	}
@@ -278,7 +283,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println( "#BpmnTaskDAO#updateBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println( "#BpmnTaskDAO#updateBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rows;
 	}
@@ -286,7 +291,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int updateBPMNTaskStatus(long bpmnTaskId,int status) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
 		int iupdateCount=0;
 		try{
 			Query q=objJProvider.createQuery("update BPMNTask set statusCode=?1 where bpmnTaskId=?2");
@@ -300,7 +305,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -308,7 +313,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int updateCompleteBPMNTaskStatus(long bpmnTaskId,int status,String userId) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
 		int iupdateCount=0;
 		try{
 			Query q=objJProvider.createQuery("update BPMNTask set statusCode=:statusCode,completedBy=:completedBy,taskcompletedate=now() where bpmnTaskId=:bpmnTaskId");
@@ -323,7 +328,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -331,7 +336,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int updateBPMNTaskStatus(long bpmnTaskId,int status,String userId) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
 		int iupdateCount=0;
 		Query q;
 		try{
@@ -350,7 +355,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -358,7 +363,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int updateBPMNTaskResponse(long bpmnTaskId,String selectedResponse) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskResponse#"+bpmnTaskId+"#"+selectedResponse);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskResponse#"+bpmnTaskId+"#"+selectedResponse);
 		int iupdateCount=0;
 		try{
 			Query q=objJProvider.createQuery("update BPMNTask set selectedResponse=?1 where bpmnTaskId=?2");
@@ -372,7 +377,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateBPMNTaskResponse#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateBPMNTaskResponse#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -380,7 +385,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int updateBPMNTaskGateWayToken(long bpmnTaskId,String gateWayToken)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskGateWayToken#"+bpmnTaskId+"#"+gateWayToken);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskGateWayToken#"+bpmnTaskId+"#"+gateWayToken);
 		int iupdateCount=0;
 		try
 		{
@@ -397,7 +402,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateBPMNTaskGateWayToken#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateBPMNTaskGateWayToken#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -405,7 +410,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public List<BPMNTask> getBPMNTasksByTXREFNO(String txrefno)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
 		List<BPMNTask> bmpnTaskList=null;
 		try
 		{
@@ -421,7 +426,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return bmpnTaskList;
 	  }
@@ -429,7 +434,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public List<BPMNTask> getActiveTasks(String txrefno)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
 		List<BPMNTask> bmpnTaskList=null;
 		try
 		{
@@ -445,33 +450,38 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return bmpnTaskList;
 	  }
-	public List<TaskDTO> getActiveTaskList(String companyCode, String userId, String filterType, String filterValue)throws ApplicationException
+	public List<TaskDTO> getActiveTaskList(String companyCode, String userId, String filterType, String filterValue, String bpmnid) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#");
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#");
 		List<BPMNTask> bmpnTaskList=null;
 		List<TaskDTO> listDTO = new ArrayList<TaskDTO>();
 		try
 		{
-			String query="select t from BPMNTask t where (statusCode=1 or statusCode=3) and elementType = :elementType ";
+			String query="select t from BPMNTask t where (statusCode=1 or statusCode=3) and elementType = :elementType and companyCode=:companyCode ";
 			String query3= " and (assignedUser=:assignedUser or assignedRole IN (select roleId from Membership where status='A' and userId=:userId and companyCode=:companyCode)) order by bpmnTaskId desc";
 			String query2=null;
 			
-			if(filterType!=null && filterType.equalsIgnoreCase("ALL"))//filterValue==null || filterValue.length()==0)
+			if((filterType!=null && filterType.equalsIgnoreCase("ALL")) && (bpmnid!=null && bpmnid.equalsIgnoreCase("ALL")))//filterValue==null || filterValue.length()==0)
 			{
 				query=query+query3;
 			}
 			else
 			{
+				if(!bpmnid.equalsIgnoreCase("ALL"))
+				{
+					query2="and bpmnId='"+bpmnid+"'";
+				}
+				
 				if(filterType.equalsIgnoreCase("TASKSUBJECT"))
 				{
 					query2="and taskSubject like '%"+filterValue+"%'";
 				}
-				else if(filterType.equalsIgnoreCase("PROCESSNAME"))
+				else if(bpmnid.equalsIgnoreCase("ALL") && filterType.equalsIgnoreCase("PROCESSNAME"))
 				{
 					query2="and bpmnId='"+filterValue+"'";
 				}
@@ -514,7 +524,16 @@ public class BPMNTaskDAO extends JPATransaction
 	        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		if (bmpnTaskList != null && bmpnTaskList.size()>0) {
 			for(BPMNTask task:bmpnTaskList) {
-				TaskDTO dto = new TaskDTO(task.getBpmnTaskId(),task.getBpmnTxRefNo(),task.getElementId(),(String) processMap.get(task.getBpmnId()),task.getTaskSubject(),simpleDateFormat.format(task.getTaskCreatedDate()),simpleDateFormat.format(task.getDueDate()),task.getLockedUser(),task.getBpmnId(),task.getCompanyCode());
+				String createdDate = "";
+				if(task.getTaskCreatedDate()!=null) {
+					createdDate = simpleDateFormat.format(task.getTaskCreatedDate());
+				}
+				String dueDate = "";
+				if(task.getDueDate()!=null) {
+					dueDate = simpleDateFormat.format(task.getDueDate());
+				}
+				
+				TaskDTO dto = new TaskDTO(task.getBpmnTaskId(),task.getBpmnTxRefNo(),task.getElementId(),(String) processMap.get(task.getBpmnId()),task.getTaskSubject(),createdDate,dueDate,task.getLockedUser(),task.getBpmnId(),task.getCompanyCode());
 				dto.setStepLabel(task.getStepLabel());
 				listDTO.add(dto);
 			}
@@ -529,7 +548,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return listDTO;
 	  }
@@ -538,7 +557,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public List<TaskDTO> getTaskHistory(String bpmntxrefno)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#");
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#");
 		List<BPMNTask> bmpnTaskList=null;
 		List<TaskDTO> listDTO = new ArrayList<TaskDTO>();
 		try
@@ -573,7 +592,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return listDTO;
 	  }
@@ -581,7 +600,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public List<BPMNComments> getComments(String bpmntxrefno)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#");
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#");
 		List<BPMNComments> commentsLst=null;
 		try
 		{
@@ -596,7 +615,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return commentsLst;
 	  }
@@ -615,7 +634,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 	}
 	
@@ -625,7 +644,7 @@ public class BPMNTaskDAO extends JPATransaction
 		BPMNProcess objBPMNProcess = new BPMNProcess();
 
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#bpmnId#"+ bpmnId+"#companyCode#"+companyCode);
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#bpmnId#"+ bpmnId+"#companyCode#"+companyCode);
 			if (bpmnId !=null) {
 //			objBPMNProcess = (BPMNProcess) objJProvider.find(BPMNProcess.class, bpmnId);
 				Query objQuery=objJProvider.createQuery("select ob from BPMNProcess ob where bpmnId=:bpmnId and companycode=:companyCode");
@@ -650,50 +669,50 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return objBPMNProcess;
 	}
 	
 	public  String getSeqVal(String seqName,int size,int value)throws ApplicationException
 	{
-		System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
  		String seqVal = null;
 		long t1 = System.currentTimeMillis();
 		try{
-			System.out.println("am in try");
+			//System.out.println("am in try");
 			if(seqName == null || size<=0){
 				throw new ApplicationException("SeqName may be null or size < then 0 in GenTxnRefnoSeqVal()");
 			}
 			seqVal = (String)objJProvider.createNativeQuery("SELECT LPAD(CAST(nextval('{h-schema}"+seqName+"') AS VARCHAR),"+size+",'"+value+"')").getSingleResult();
-			System.out.println("seqVal = "+seqVal);
+			//System.out.println("seqVal = "+seqVal);
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(e);
 		}	
-		System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
-		System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
+		//System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
 		return seqVal;
 	}
 	
 	public  String getProcessList(String seqName,int size,int value)throws ApplicationException
 	{
-		System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
  		String seqVal = null;
 		long t1 = System.currentTimeMillis();
 		try{
-			System.out.println("am in try");
+			//System.out.println("am in try");
 			if(seqName == null || size<=0){
 				throw new ApplicationException("SeqName may be null or size < then 0 in GenTxnRefnoSeqVal()");
 			}
 			seqVal = (String)objJProvider.createNativeQuery("SELECT LPAD(CAST(nextval('{h-schema}"+seqName+"') AS VARCHAR),"+size+",'"+value+"')").getSingleResult();
-			System.out.println("seqVal = "+seqVal);
+			//System.out.println("seqVal = "+seqVal);
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(e);
 		}	
-		System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
-		System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
+		//System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
 		return seqVal;
 	}
 	
@@ -704,10 +723,10 @@ public class BPMNTaskDAO extends JPATransaction
 		JSONArray steps = null;
 		JSONObject json =new JSONObject();
 		try {
-			System.out.println("#BpmnTaskDAO#findStepDetails#TaskId#" + bpmnId);
+			//System.out.println("#BpmnTaskDAO#findStepDetails#TaskId#" + bpmnId);
 			if (bpmnId !=null) {
 			 obj=  objJProvider.createNativeQuery("select processconfig ->> 'steps' as Steps, processconfig ->> 'choices' as choices, processconfig ->> 'jsonschema' as jsonschema,  processconfig ->> 'uischema' as uischema, processconfig ->> 'bpmn' as bpmn,processconfig ->> 'displayrule' as displayrule, companyCode from {h-schema}zf_cfg_bpmnprocess where bpmnid = :bpmnid and companyCode=:companycode").setParameter("bpmnid", bpmnId).setParameter("companycode", companycode).getResultList();
-			System.out.println("obj "+obj.get(0)[0]);
+			//System.out.println("obj "+obj.get(0)[0]);
 			steps = new  JSONArray(String.valueOf(obj.get(0)[0]));
 			//steps = obj.get(0).toJSONArray(steps);
 			JSONObject step = null;
@@ -728,7 +747,7 @@ public class BPMNTaskDAO extends JPATransaction
 			JSONObject processData = new JSONObject();
 			json.put("processdata", processData);
 
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -737,11 +756,35 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findStepDetails#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findStepDetails#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	}
 	
+	public String findBPMNID(String processName, String companycode) throws ApplicationException 
+	{
+		long t1 = System.currentTimeMillis();
+		List<Object[]> obj=null;
+		String bpmnid = null;
+		try {
+			//System.out.println("#BpmnTaskDAO#findBPMNID#processName#" + processName);
+			if (processName !=null) {
+			 obj=  objJProvider.createNativeQuery("select bpmnid from {h-schema}zf_cfg_bpmnprocess where processname = :processname and companyCode=:companycode").setParameter("processname", processName).setParameter("companycode", companycode).getResultList();
+				if(obj.size() >  0) {
+					bpmnid = String.valueOf(obj.get(0));
+				}
+			}	
+		} catch (Exception e) {
+			e.printStackTrace();
+			//log.printErrorMessage(e);
+			throw new ApplicationException(new Exception(e));
+		}
+		finally
+		{
+			//System.out.println("#BpmnTaskDAO#findBPMNID#processName#End#TT#"+ (System.currentTimeMillis() - t1));
+		}
+		return bpmnid;
+	}
 	
 	public JSONObject findWidgetDetails(String widgetid, String companycode) throws ApplicationException 
 	{
@@ -750,7 +793,7 @@ public class BPMNTaskDAO extends JPATransaction
 		JSONArray steps = null;
 		JSONObject json =new JSONObject();
 		try {
-			System.out.println("#BpmnTaskDAO#findWidgetDetails#TaskId#" + widgetid);
+			//System.out.println("#BpmnTaskDAO#findWidgetDetails#TaskId#" + widgetid);
 			if (widgetid !=null) {
 			 obj=  objJProvider.createNativeQuery("select processconfig ->> 'choices' as choices, processconfig ->> 'jsonschema' as jsonschema,  processconfig ->> 'uischema' as uischema, processconfig ->> 'bpmn' as bpmn, processconfig ->> 'displayrule' as displayrule, companyCode, processname from {h-schema}zf_cfg_bpmnprocess where bpmnid = :bpmnid and companyCode=:companycode").setParameter("bpmnid", widgetid).setParameter("companycode", companycode).getResultList();
 		
@@ -775,7 +818,7 @@ public class BPMNTaskDAO extends JPATransaction
 			    String key = keys.next();
 			    JSONObject fieldJSON= jsonschemaobj.getJSONObject(key);
 			    if(fieldJSON.has("VISIBILITY")) {
-			    	fieldJSON.getJSONObject("VISIBILITY").put("ENQUIRY","ReadOnly");
+			    	fieldJSON.getJSONObject("VISIBILITY").put("WIDGET","ReadOnly");
 			    }else {
 			    	JSONObject visibility = new JSONObject();
 			    	visibility.put("WIDGET","ReadOnly");
@@ -793,7 +836,7 @@ public class BPMNTaskDAO extends JPATransaction
 			JSONObject processData = new JSONObject();
 			json.put("processdata", processData);
 
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -802,7 +845,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findWidgetDetails#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findWidgetDetails#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	}
@@ -815,7 +858,7 @@ public class BPMNTaskDAO extends JPATransaction
 		JSONObject json =new JSONObject();
 		JSONObject processData = null;
 		try {
-			System.out.println("#BpmnTaskDAO#findEnqTaskDetails#refNo#" + dto);
+			//System.out.println("#BpmnTaskDAO#findEnqTaskDetails#refNo#" + dto);
 			if (dto !=null) {
 				BPMNProcessInfo objBPMNProcessInfo = findBPMNProcessInfo(dto.getRefId());
 				if(objBPMNProcessInfo.getProcessdata() == null || objBPMNProcessInfo.getProcessdata()=="") {
@@ -826,7 +869,7 @@ public class BPMNTaskDAO extends JPATransaction
 				
 				
 			obj=  objJProvider.createNativeQuery("select processconfig ->> 'steps' as Steps, processconfig ->> 'choices' as choices, processconfig ->> 'jsonschema' as jsonschema,  processconfig ->> 'uischema' as uischema, processconfig ->> 'bpmn' as bpmn from {h-schema}zf_cfg_bpmnprocess where bpmnid = :bpmnid").setParameter("bpmnid", objBPMNProcessInfo.getBpmnId()).getResultList();
-			System.out.println("obj "+obj.get(0)[0]);
+			//System.out.println("obj "+obj.get(0)[0]);
 			steps = new  JSONArray(String.valueOf(obj.get(0)[0]));
 			JSONObject step = null;
 			
@@ -871,7 +914,7 @@ public class BPMNTaskDAO extends JPATransaction
 			
 			json.put("processdata", processData);
 
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			dto.setCompanyCode(objBPMNProcessInfo.getCompamnyCode());
 			dto.setBpmnId(objBPMNProcessInfo.getBpmnId());
 			dto.setFormData(json.toString());
@@ -883,7 +926,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findEnqTaskDetails#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findEnqTaskDetails#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return dto;
 	
@@ -898,10 +941,10 @@ public class BPMNTaskDAO extends JPATransaction
 		JSONArray steps = null;
 		JSONObject json =new JSONObject();
 		try {
-			System.out.println("#BpmnTaskDAO#findTaskDetails#TaskId#" + bpmnId);
+			//System.out.println("#BpmnTaskDAO#findTaskDetails#TaskId#" + bpmnId);
 			if (bpmnId !=null) {
 			 obj=  objJProvider.createNativeQuery("select processconfig ->> 'steps' as Steps, processconfig ->> 'choices' as choices, processconfig ->> 'jsonschema' as jsonschema,  processconfig ->> 'uischema' as uischema, processconfig ->> 'bpmn' as bpmn, processconfig ->> 'displayrule' as displayrule from {h-schema}zf_cfg_bpmnprocess where bpmnid = :bpmnid and companyCode=:companycode").setParameter("bpmnid", bpmnId).setParameter("companycode", companycode).getResultList();
-			System.out.println("obj "+obj.get(0)[0]);
+			//System.out.println("obj "+obj.get(0)[0]);
 			steps = new  JSONArray(String.valueOf(obj.get(0)[0]));
 			//steps = obj.get(0).toJSONArray(steps);
 			JSONObject step = null;
@@ -930,7 +973,7 @@ public class BPMNTaskDAO extends JPATransaction
 			
 			json.put("processdata", processData);
 			
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -939,7 +982,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findTaskDetails#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findTaskDetails#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	}
@@ -1049,8 +1092,8 @@ public class BPMNTaskDAO extends JPATransaction
 		List<Object[]> obj=null;
 		JSONObject json =new JSONObject();
 		try {
-			 obj=  objJProvider.createNativeQuery("select PROCESSID, COUNTRYCODE, PROCESSNAME as NAME, BPMNID, '3456' as TAT, 'test' as DESCRIPTION from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processtype=:processtype").setParameter("companyCode", companyCode).setParameter("processtype", processtype).getResultList();
-			System.out.println("obj : "+obj + " | companyCode : " + companyCode + " | processtype : " + processtype);
+			 obj=  objJProvider.createNativeQuery("select PROCESSID, COUNTRYCODE, PROCESSNAME as NAME, BPMNID, '3456' as TAT, 'test' as DESCRIPTION, category  from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processtype=:processtype").setParameter("companyCode", companyCode).setParameter("processtype", processtype).getResultList();
+			//System.out.println("obj : "+obj + " | companyCode : " + companyCode + " | processtype : " + processtype);
 			JSONArray array = new JSONArray();
 			for(int i=0 ; i < obj.size() ; i++) {
 				JSONObject node = new JSONObject();
@@ -1061,13 +1104,13 @@ public class BPMNTaskDAO extends JPATransaction
 					node.put("bpmnid", obj.get(i)[3]);
 					node.put("tat", obj.get(i)[4]);
 					node.put("description", obj.get(i)[5]);
-				
+					node.put("category", obj.get(i)[6]);
 				array.put(node);
 			}
 			
 			json.put("processList", array);
 			
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		catch (Exception e) {
 			e.printStackTrace();
@@ -1076,7 +1119,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getDSProcessList#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getDSProcessList#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	
@@ -1092,7 +1135,7 @@ public class BPMNTaskDAO extends JPATransaction
 				response="Not Available";
 			}
 			obj=  objJProvider.createNativeQuery("select PROCESSNAME as NAME from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processid=:processid").setParameter("companyCode", companyCode).setParameter("processid", processid).getResultList();
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			if(obj!= null && obj.size()>0) {
 				response="Not Available";
 			}
@@ -1104,7 +1147,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#checkProcessId#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#checkProcessId#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return response;
 	
@@ -1120,7 +1163,7 @@ public class BPMNTaskDAO extends JPATransaction
 			 obj =  objJProvider.createNativeQuery("select processid,countrycode,bpmnid,CAST(json as TEXT) from {h-schema}zf_cfg_bpmnworkflowdtl where companyCode = :companyCode and processId= :processId").setParameter("companyCode", companyCode).setParameter("processId", processId).getResultList();
 			
 			 
-			 System.out.println("obj : "+obj + " | companyCode : " + companyCode + " | processId : " + processId);
+			 //System.out.println("obj : "+obj + " | companyCode : " + companyCode + " | processId : " + processId);
 				
 			JSONObject node = new JSONObject();
 			for(int i=0 ; i < obj.size() ; i++) {
@@ -1134,7 +1177,7 @@ public class BPMNTaskDAO extends JPATransaction
 			
 			json.put("process", node);
 			
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		catch (Exception e) {
 			e.printStackTrace();
@@ -1143,7 +1186,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	
@@ -1166,9 +1209,41 @@ public class BPMNTaskDAO extends JPATransaction
 	    
 		try {
 			objJProvider.begin();
-			 count =  objJProvider.createNativeQuery("insert into {h-schema}zf_cfg_bpmnworkflowdtl (companycode, processid, processname, bpmnid, countrycode, json, branchname, processtype) values (:1,:2,:3,:4,:5,:6,:7,:8)")
+			String processid = processtype.substring(0, 1) + "0001";
+			
+			List<Object> obj1 = objJProvider.createNativeQuery("select id from {h-schema}zf_cfg_available_ids where companycode = :companycode and idtype = :processtype order by id asc LIMIT 1").setParameter("companycode", companyCode).setParameter("processtype", processtype).getResultList();
+			if(obj1.size()>0) {
+				String tempProcessId = String.valueOf(obj1.get(0));
+				if(tempProcessId.length()==5) {
+					//String intprocess = tempProcessId.substring(1);
+					processid = tempProcessId;
+				}
+				objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_available_ids where companycode=:companyCode and idtype=:processtype  and id=:id ").setParameter("companyCode", companyCode).setParameter("processtype", processtype).setParameter("id", tempProcessId).executeUpdate();
+				
+			}else{
+			List<Object> obj = objJProvider.createNativeQuery("select processid from {h-schema}zf_cfg_bpmnworkflowdtl where companycode = :companycode and processtype = :processtype order by processid desc LIMIT 1").setParameter("companycode", companyCode).setParameter("processtype", processtype).getResultList();
+			if(obj.size()>0) {
+				String tempProcessId = String.valueOf(obj.get(0));
+				//System.out.println("#BpmnTaskDAO#createDSProcess#tempProcessId#"+ tempProcessId);
+				if(tempProcessId.length()==5) {
+					String intprocess = tempProcessId.substring(1);
+					processid = processtype.substring(0, 1) + String.format("%04d", Integer.valueOf(intprocess)+1);
+					//System.out.println("#BpmnTaskDAO#createDSProcess#processid#"+ tempProcessId);
+				}
+			}
+			}
+			//updating auto generated process id
+			process.put("PROCESSID", processid);
+			process.put("BPMNID", processid+"_V1");
+			JSONObject bpmn = (JSONObject) processjson.get("bpmn");
+			bpmn.put("BPMNID", processid+"_V1");
+			processjson.put("process", process);
+			processjson.put("bpmn", bpmn);
+			
+			count =  objJProvider.createNativeQuery("insert into {h-schema}zf_cfg_bpmnworkflowdtl (companycode, processid, processname, bpmnid, countrycode, json, branchname, processtype) values (:1,:2,:3,:4,:5,:6,:7,:8)")
 					 .setParameter("1", companyCode)
-					 .setParameter("2", (String)process.get("PROCESSID"))
+					 //.setParameter("2", (String)process.get("PROCESSID"))
+					 .setParameter("2", processid)
 					 .setParameter("3", (String)process.get("NAME"))
 					 .setParameter("4", (String)process.get("BPMNID"))
 					 .setParameter("5", "IN")
@@ -1189,7 +1264,51 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+		}
+		return message;
+	
+	}
+	
+	
+	public String deleteDSProcess(String companyCode, String processId) throws ApplicationException {
+
+		long t1 = System.currentTimeMillis();
+		int count=0;
+	    String message="Process deleted successfully";
+	
+	    
+		try {
+			objJProvider.begin();
+			if(processId.length()==5) {
+				List<Object> obj =  objJProvider.createNativeQuery("select processtype from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processid=:processId").setParameter("companyCode", companyCode).setParameter("processId", processId).getResultList();
+				if(obj.size()>0) {
+					String idtype = String.valueOf(obj.get(0));
+					objJProvider.createNativeQuery("insert into {h-schema}zf_cfg_available_ids (companycode, idtype, id) values (:companyCode, :idtype, :id)").setParameter("companyCode", companyCode).setParameter("idtype", idtype).setParameter("id", processId).executeUpdate();
+				}
+			}
+			count = objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processid=:processId").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+			objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnprocess where companycode=:companyCode and processid=:processId").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+			objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnnotification where companycode=:companyCode and processid=:processId").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+			objJProvider.createNativeQuery("delete from {h-schema}zf_txn_userdocs where companycode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId)").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+			objJProvider.createNativeQuery("delete from {h-schema}zf_txn_comments where companycode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId)").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+			objJProvider.createNativeQuery("delete from {h-schema}zf_txn_bpmntask where companycode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId)").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+			objJProvider.createNativeQuery("delete from {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId").setParameter("companyCode", companyCode).setParameter("processId", processId).executeUpdate();
+		
+			objJProvider.commit();
+			if(count == 0) {
+				message="Unable to delete process";
+			}
+			}	
+		catch (Exception e) {
+			e.printStackTrace();
+			//log.printErrorMessage(e);
+			//throw new ApplicationException(new Exception(e));
+			message="Process id already deleted";
+		}
+		finally
+		{
+			//System.out.println("#BpmnTaskDAO#deleteDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return message;
 	
@@ -1208,7 +1327,7 @@ public class BPMNTaskDAO extends JPATransaction
 	    JSONObject json = new JSONObject(processjson);
 	    JSONObject process = (JSONObject) json.get("process");
 	    
-	    System.out.println("companyCode#"+companyCode+"#process"+process.get("PROCESSID"));
+	    //System.out.println("companyCode#"+companyCode+"#process"+process.get("PROCESSID"));
 	   try {
 			objJProvider.begin();
 			count =  objJProvider.createNativeQuery("UPDATE {h-schema}zf_cfg_bpmnworkflowdtl set json=:json, processname=:processname where companycode=:companycode and  processid=:processid ")
@@ -1228,7 +1347,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return message;
 	
@@ -1242,7 +1361,7 @@ public class BPMNTaskDAO extends JPATransaction
 	    JSONObject json = new JSONObject(processjson);
 	    JSONObject process = (JSONObject) json.get("process");
 	    
-	    System.out.println("companyCode#"+companyCode+"#process"+process.get("PROCESSID"));
+	    //System.out.println("companyCode#"+companyCode+"#process"+process.get("PROCESSID"));
 	   try {
 			objJProvider.begin();
 			count =  objJProvider.createNativeQuery("UPDATE {h-schema}zf_cfg_bpmnprocess set isactive='N' where companycode=:companycode and  processid=:processid ")
@@ -1267,7 +1386,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json.toString();
 	
@@ -1282,7 +1401,7 @@ public class BPMNTaskDAO extends JPATransaction
 	 */
 	public int removeComments(String refNo, long taskid) throws ApplicationException {
 		try{
-			System.out.println("refNo ---> "+refNo+" taskid  ---> "+taskid );
+			//System.out.println("refNo ---> "+refNo+" taskid  ---> "+taskid );
 			String query = "delete from BPMNComments where taskId=:taskId and refId=:refId";
 			int commentsCnt = objJProvider.createQuery(query).setParameter("taskId", taskid).setParameter("refId", refNo).executeUpdate();
 			return commentsCnt;
@@ -1308,7 +1427,7 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNNotification#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNNotification#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return objBPMNNotification;
 	}
@@ -1316,7 +1435,7 @@ public class BPMNTaskDAO extends JPATransaction
 	public int deleteNotification(String companyCode,String processid,String bpmnId) throws ApplicationException
 	{
 		try{
-			System.out.println("companyCode ---> "+companyCode+" processid  ---> "+processid+" bpmnId  ---> "+bpmnId );
+			//System.out.println("companyCode ---> "+companyCode+" processid  ---> "+processid+" bpmnId  ---> "+bpmnId );
 			String query = "delete from BPMNNotification where  companycode=:companycode and bpmnId=:bpmnId";//and processId=:processId
 			int notificationCount = objJProvider.createQuery(query).setParameter("companycode", companyCode).setParameter("bpmnId", bpmnId).executeUpdate();//.setParameter("processId", processid)
 			return notificationCount;
@@ -1339,9 +1458,35 @@ public class BPMNTaskDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNNotification#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNNotification#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return newBPMNNotification;
+	}
+	
+	public void callSubscriptions(String companyCode, String processId, String stepName, String processData) throws Exception 
+	{
+		//long t1 = System.currentTimeMillis();
+		//int rows = 0;
+		try {
+		//System.out.println(" callSubscriptions begin");
+		List<Object> obj = objJProvider.createNativeQuery("select hookurl from {h-schema}zf_cfg_subscription where companycode = :companycode and processid = :processid and stepname=:stepname order by processid desc LIMIT 1").setParameter("companycode", companyCode).setParameter("processid", processId.split("_")[0]).setParameter("stepname", stepName).getResultList();
+		if(obj.size()>0) {
+			for(int i=0;i<obj.size();i++) {
+			String hookurl = String.valueOf(obj.get(i));
+			//System.out.println(" callSubscriptions url " + hookurl);
+			//System.out.println("#BpmnTaskDAO#createDSProcess#tempProcessId#"+ hookurl);
+			  HttpClient client = new DefaultHttpClient();
+			  HttpPost post = new HttpPost(hookurl);
+			  StringEntity input = new StringEntity(processData);
+			  input.setContentType("application/json");
+			  post.setEntity(input);
+			  HttpResponse response = client.execute(post);
+			}
+		}
+		//System.out.println(" callSubscriptions end");
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	

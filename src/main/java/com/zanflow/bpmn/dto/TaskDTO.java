@@ -32,10 +32,16 @@ public class TaskDTO extends ResponseDTO{
 	private ArrayList<CommentsDTO> comments;
 	protected List<TXNDocumentDTO> txnDocList=null;
 	protected int statusCode;
-	
 	private String stepLabel;
-
 	private String taskType;
+	private String assigneduser;
+	private String reporter;
+	private String priority;
+	private String lastModifiedDate;
+	private String completedDate;
+	private String selectedResponse;
+
+	
 
 	public TaskDTO(){}
 	
@@ -207,5 +213,60 @@ public class TaskDTO extends ResponseDTO{
 	public void setTaskType(String taskType) {
 		this.taskType = taskType;
 	}
+	
+	public String getAssigneduser() {
+		return assigneduser;
+	}
+
+
+	public void setAssigneduser(String assigneduser) {
+		this.assigneduser = assigneduser;
+	}
+
+
+	public String getReporter() {
+		return reporter;
+	}
+
+
+	public void setReporter(String reporter) {
+		this.reporter = reporter;
+	}
+
+
+	public String getPriority() {
+		return priority;
+	}
+
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+
+	public String getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(String lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public String getCompletedDate() {
+		return completedDate;
+	}
+
+	public void setCompletedDate(String completedDate) {
+		this.completedDate = completedDate;
+	}
+	
+	public String getSelectedResponse() {
+		return selectedResponse;
+	}
+
+	public void setSelectedResponse(String selectedResponse) {
+		this.selectedResponse = selectedResponse;
+	}
+
+
 
 }

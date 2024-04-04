@@ -26,7 +26,6 @@ public class BPMNProcess implements Serializable{
 	
 	protected String isactive;
 	
-	
 	@Column(name="createdtime")
 	protected Timestamp createdTime;
 	

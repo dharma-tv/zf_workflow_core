@@ -93,14 +93,14 @@ public class InclusiveGateWayElement extends BasicElement
 				if(count>0)
 				for(String inFlowId:inComingSeqList)
 				{
-					System.out.println("#InclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
-//					System.out.println("#InclusiveGateWayElement#"+objBPMNData.getBpmnTask().getBpmnTaskId()+"#"+objBPMNData.getBpmnTask().getElementId()+"#"+objBPMNData.getBpmnTask().getGateWayToken());
+					//System.out.println("#InclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
+//					//System.out.println("#InclusiveGateWayElement#"+objBPMNData.getBpmnTask().getBpmnTaskId()+"#"+objBPMNData.getBpmnTask().getElementId()+"#"+objBPMNData.getBpmnTask().getGateWayToken());
 //					SequenceFlow objSequenceFlow=getObjBpmnModelInstance().getModelElementById(inFlowId);
-//					System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
-//					System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
+//					//System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
+//					//System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
 					isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  inFlowId,taskList);
-//					System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId()+"#flag#"+isIncomingTaskCompleted);
-					System.out.println("#InclusiveGateWayElement#objSequenceFlowID#"+inFlowId+"#flag#"+isIncomingTaskCompleted);
+//					//System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId()+"#flag#"+isIncomingTaskCompleted);
+					//System.out.println("#InclusiveGateWayElement#objSequenceFlowID#"+inFlowId+"#flag#"+isIncomingTaskCompleted);
 					if(isIncomingTaskCompleted)
 					{
 						actCount++;
@@ -111,17 +111,17 @@ public class InclusiveGateWayElement extends BasicElement
 					}
 				}
 				isIncomingTaskCompleted=(count>0 && count==actCount);
-				System.out.println("#InclusiveGateWayElement#count#"+count+"#actCount#"+actCount+"#flag#"+isIncomingTaskCompleted);
+				//System.out.println("#InclusiveGateWayElement#count#"+count+"#actCount#"+actCount+"#flag#"+isIncomingTaskCompleted);
 			}
 			else
 			{
 				for(String inFlowId:inComingSeqList)
 				{
-					System.out.println("#InclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
+					//System.out.println("#InclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
 					isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  inFlowId,taskList);
 //					SequenceFlow objSequenceFlow=getObjBpmnModelInstance().getModelElementById(inFlowId);
-//					System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
-//					System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
+//					//System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
+//					//System.out.println("InclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
 //					if(objSequenceFlow.getSource()!=null && objSequenceFlow.getSource().getId()!=null)
 //					{
 //						isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  objSequenceFlow.getSource().getId(),taskList);
@@ -149,7 +149,7 @@ public class InclusiveGateWayElement extends BasicElement
 				if(objSequenceFlow.getConditionExpression()!=null)
 				{					
 					String conditionExpression = objSequenceFlow.getConditionExpression().getTextContent();
-					System.out.println("conditionExpression ---> " + conditionExpression);
+					//System.out.println("conditionExpression ---> " + conditionExpression);
 					try 
 					{
 						boolean result = FlowConditionValidator.validateCondition(objBPMNData.getDataMap(), conditionExpression);

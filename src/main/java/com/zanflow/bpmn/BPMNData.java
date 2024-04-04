@@ -21,7 +21,7 @@ public class BPMNData {
 	private String data;
 	private String companyCode;
 	private String completedBy;
-	
+	private String initatedBy;
 	
 
 	public String getCompletedBy() {
@@ -131,4 +131,12 @@ public class BPMNData {
 		this.dataMap = dataMap;
 	}
 	
+	public String getInitatedBy() {
+		return initatedBy;
+	}
+
+
+	public void setInitatedBy(String initatedBy) {
+		this.initatedBy = initatedBy;
+	}
 }

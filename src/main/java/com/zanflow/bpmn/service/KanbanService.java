@@ -74,15 +74,34 @@ public class KanbanService {
 		return lanes;
 	}
 	
+	
+	@RequestMapping(value="/getTasks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ArrayList<TaskDTO> getTaskList(HttpServletRequest request, HttpServletResponse 
+			 response) throws ApplicationException {
+		KanbanServiceImpl service = new KanbanServiceImpl();
+		String companyCode = getCompanyCode(request);
+		String userId = getUserId(request);
+		ArrayList<TaskDTO> taskList = null;
+		try
+		{
+			taskList=service.getTaskList(companyCode,userId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return taskList;
+	}
+	
 	@RequestMapping(value="/getCard", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ResponseDTO> getCard(HttpServletRequest request, HttpServletResponse 
 			 response,@RequestBody TaskDTO card) {
 		ResponseDTO dto =new TaskDTO();
 		KanbanServiceImpl service = new KanbanServiceImpl();
 		try {
-			System.out.println("getTask --> BPMN ID --> " + card.getBpmnId());
+			//System.out.println("getTask --> BPMN ID --> " + card.getBpmnId());
 			dto = service.getCard(card); 
-			System.out.println("getTask --> BPMN ID --> dto " + dto);
+			//System.out.println("getTask --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -95,9 +114,9 @@ public class KanbanService {
 		ResponseDTO dto =new TaskDTO();
 		KanbanServiceImpl service = new KanbanServiceImpl();
 		try {
-			System.out.println("getLaunchCard --> Board ID --> " + boardid);
+			//System.out.println("getLaunchCard --> Board ID --> " + boardid);
 			dto = service.getLaunchCard(boardid, request.getHeader("userId"), getCompanyCode(request));
-			System.out.println("getLaunchCard --> Board ID --> dto " + dto);
+			//System.out.println("getLaunchCard --> Board ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -196,7 +215,7 @@ public class KanbanService {
 		try
 		{
 			json=objKanbanServiceImpl.getBoardConfig(companyCode,boardid);
-			System.out.println("output "+json.toString());
+			//System.out.println("output "+json.toString());
 		}
 		catch (Exception ex) 
 		{
@@ -205,7 +224,7 @@ public class KanbanService {
 		return json.toString();
 	 }
 	 
-	 @RequestMapping(value="/deleteBoard/{boardid}", method = RequestMethod.GET , produces = MediaType.APPLICATION_JSON_VALUE)
+	 @RequestMapping(value="/deleteBoard/{boardid}", method = RequestMethod.POST , produces = MediaType.APPLICATION_JSON_VALUE)
 	 public String deleteBoard(HttpServletRequest request, HttpServletResponse 
 	 response, @PathVariable String boardid) throws Exception
 	 {
@@ -230,14 +249,14 @@ public class KanbanService {
 	 {
 
 		String companyCode =  getCompanyCode(request);		
-		System.out.println("processJson --- > " + boardJson);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("processJson --- > " + boardJson);
+		//System.out.println("companyCode --- > " + companyCode);
 		KanbanServiceImpl objKanbanServiceImpl=new KanbanServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
 		{
 			objKanbanServiceImpl.createBoard(companyCode,boardJson);
-			objKanbanServiceImpl.deployBoard(companyCode,boardJson);
+			//objKanbanServiceImpl.deployBoard(companyCode,boardJson);
 			objResponseDTO.setResponseCode("SUCCESS");
 			objResponseDTO.setResponsMsg("Board Created");
 		}
@@ -255,8 +274,8 @@ public class KanbanService {
 	 response,@RequestBody String processJson) throws Exception
 	 {
 		String companyCode =  getCompanyCode(request);		
-		System.out.println("processJson --- > " + processJson);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("processJson --- > " + processJson);
+		//System.out.println("companyCode --- > " + companyCode);
 		KanbanServiceImpl objKanbanServiceImpl=new KanbanServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -288,8 +307,8 @@ public class KanbanService {
 	 response,@RequestBody String processJson) throws Exception
 	 {
 		String companyCode =  getCompanyCode(request);		
-		System.out.println("processJson --- > " + processJson);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("processJson --- > " + processJson);
+		//System.out.println("companyCode --- > " + companyCode);
 		KanbanServiceImpl objKanbanServiceImpl=new KanbanServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -335,4 +354,10 @@ public class KanbanService {
 		 return request.getHeader("companycode");
 		
 	 }
+	 
+	 private String getUserId(HttpServletRequest request) {
+		 return request.getHeader("userId");
+		
+	 }
+	 
 }

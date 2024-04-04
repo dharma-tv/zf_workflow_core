@@ -14,7 +14,7 @@ import com.zanflow.common.db.Constants;
 
 public class NotificationHelper 
 {
-	public void sendMail(String bpmnTxRefno,String bpmnId,String stepName,String triggerEvent,Map<String, Object> datamap,String processId,String companyCode)
+	public void sendMail(String bpmnTxRefno,String bpmnId,String stepName,String triggerEvent,Map<String, Object> datamap,String processId,String companyCode, String processname)
 	{
 		BPMNTaskDAO objBPMNTaskDAO=null;
 		try
@@ -25,6 +25,7 @@ public class NotificationHelper
 			}
 			objBPMNTaskDAO=new BPMNTaskDAO(Constants.DB_PUNIT);
 			datamap.put("TXNREFNO", bpmnTxRefno);
+			datamap.put("PROCESSNAME", processname);
 			Notifier objNotifier=Notifier.getNotifier();
 			
 			BPMNNotificationPK objPk=new BPMNNotificationPK();
@@ -40,20 +41,40 @@ public class NotificationHelper
 			BPMNNotification objNotfication=objBPMNTaskDAO.findBPMNNotification(objPk);
 			if(objNotfication!=null)
 			{
+				
+				//System.out.println("Notification "+objNotfication);
 				String subject=objNotfication.getSubject();
+				String toEmail = objNotfication.getToEmail();
+				String ccEmail = objNotfication.getCcEmail();
 				for(String key:datamap.keySet())
 				{
-					String tag="<<"+key+">>";
-					subject=subject.replaceAll(tag, (String) datamap.get(key));
+					String tag="zf."+key+"";
+					if(datamap.get(key) instanceof String) {
+						subject=subject.replaceAll(tag, "" + (String) datamap.get(key) + "");
+					}
+					if(toEmail!=null && toEmail.startsWith("zf.") && toEmail.equals("zf."+key)) {
+						toEmail = (String) datamap.get(key);
+					}
+					//System.out.println("Notification To "+objNotfication.getToEmail() + " | Notification CC " + ccEmail + " " + ccEmail.equals("zf."+key));
+					if(ccEmail!=null && ccEmail.startsWith("zf.") && ccEmail.equals("zf."+key)) {
+						ccEmail = (String) datamap.get(key);
+					}
+					
 				}
 				
 				String mailContent=objNotfication.getMailContent();
 				for(String key:datamap.keySet())
 				{
-					String tag="<<"+key+">>";
-					mailContent=mailContent.replaceAll(tag, (String) datamap.get(key));
+					String tag="zf."+key+"";
+					if(datamap.get(key) instanceof String) {
+					   mailContent=mailContent.replaceAll(tag, "" + (String) datamap.get(key) + "");
+					}
 				}
-				objNotifier.sendEmail(objNotfication.getToEmail(), objNotfication.getCcEmail(), subject, mailContent);
+				
+				
+				
+				
+				objNotifier.sendEmail(toEmail, ccEmail, subject, mailContent);
 			}
 		}
 		catch(Exception ex)
@@ -74,7 +95,7 @@ public class NotificationHelper
 		}
 	}
 	
-	public void sendMail(String bpmnTxRefno,ArrayList<BPMNStepDTO> bpmnNextSteps,String triggerEvent,Map<String, Object> datamap,String processId,String companyCode,String bpmnId)
+	public void sendMail(String bpmnTxRefno,ArrayList<BPMNStepDTO> bpmnNextSteps,String triggerEvent,Map<String, Object> datamap,String processId,String companyCode,String bpmnId, String processname)
 	{
 		BPMNTaskDAO objBPMNTaskDAO=null;
 		try
@@ -85,13 +106,14 @@ public class NotificationHelper
 			}
 			objBPMNTaskDAO=new BPMNTaskDAO(Constants.DB_PUNIT);
 			datamap.put("TXNREFNO", bpmnTxRefno);
+			datamap.put("PROCESSNAME", processname);
 			Notifier objNotifier=Notifier.getNotifier();
-			System.out.println("Notification "+bpmnTxRefno+" bpmnNextSteps "+bpmnNextSteps.size()+" bpmnNextSteps "+bpmnNextSteps);
+			//System.out.println("Notification "+bpmnTxRefno+" bpmnNextSteps "+bpmnNextSteps.size()+" bpmnNextSteps "+bpmnNextSteps);
 			if(bpmnNextSteps!=null && bpmnNextSteps.size()>0)
 			{
 				for(BPMNStepDTO objStep:bpmnNextSteps)
 				{
-					System.out.println("Notification objStep "+objStep.getStepName());
+					//System.out.println("Notification objStep "+objStep.getStepName());
 					
 					BPMNNotificationPK objPk=new BPMNNotificationPK();
 					objPk.setCompanyCode(companyCode);
@@ -100,26 +122,26 @@ public class NotificationHelper
 					objPk.setStepName(objStep.getStepName());
 					objPk.setTriggerEvent(triggerEvent);
 					
-					System.out.println("Notification objStep objPk "+objPk);
+					//System.out.println("Notification objStep objPk "+objPk);
 					datamap.put("STEPNAME", objStep.getStepName());
 					
 					BPMNNotification objNotfication=objBPMNTaskDAO.findBPMNNotification(objPk);
 					if(objNotfication!=null)
 					{
-						System.out.println("Notification "+objNotfication);
+						//System.out.println("Notification "+objNotfication);
 						String subject=objNotfication.getSubject();
 						String toEmail = objNotfication.getToEmail();
 						String ccEmail = objNotfication.getCcEmail();
 						for(String key:datamap.keySet())
 						{
-							String tag=" zf."+key+" ";
+							String tag="zf."+key+"";
 							if(datamap.get(key) instanceof String) {
-								subject=subject.replaceAll(tag, " " + (String) datamap.get(key) + " ");
+								subject=subject.replaceAll(tag, "" + (String) datamap.get(key) + "");
 							}
 							if(toEmail!=null && toEmail.startsWith("zf.") && toEmail.equals("zf."+key)) {
 								toEmail = (String) datamap.get(key);
 							}
-							System.out.println("Notification To "+objNotfication.getToEmail() + " | Notification CC " + ccEmail + " " + ccEmail.equals("zf."+key));
+							//System.out.println("Notification To "+objNotfication.getToEmail() + " | Notification CC " + ccEmail + " " + ccEmail.equals("zf."+key));
 							if(ccEmail!=null && ccEmail.startsWith("zf.") && ccEmail.equals("zf."+key)) {
 								ccEmail = (String) datamap.get(key);
 							}
@@ -129,9 +151,9 @@ public class NotificationHelper
 						String mailContent=objNotfication.getMailContent();
 						for(String key:datamap.keySet())
 						{
-							String tag=" zf."+key+" ";
+							String tag="zf."+key+"";
 							if(datamap.get(key) instanceof String) {
-							   mailContent=mailContent.replaceAll(tag, " " + (String) datamap.get(key) + " ");
+							   mailContent=mailContent.replaceAll(tag, "" + (String) datamap.get(key) + "");
 							}
 						}
 						

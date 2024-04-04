@@ -22,7 +22,7 @@ public class DateUtility {
 	public static Timestamp getCountryTimeStamp(String argPUnit,String countryCode)
 	{
 		long t = System.currentTimeMillis();
-		System.out.println("#getCountryTimeStamp#"+countryCode+"#I#"+t);
+		//System.out.println("#getCountryTimeStamp#"+countryCode+"#I#"+t);
 	    Timestamp timestamp = null;
 		try{
 			
@@ -31,18 +31,18 @@ public class DateUtility {
 			}
 		     // to country zone
 			String  strCountryZone = getCurrentTimeZone(argPUnit,countryCode);
-			System.out.println("#getCountryTimeStamp#strCountryZone#"+strCountryZone);
+			//System.out.println("#getCountryTimeStamp#strCountryZone#"+strCountryZone);
 			 
 	    	Calendar scanDateTime = new GregorianCalendar(TimeZone.getTimeZone(strCountryZone.trim())); 
 	    	
 		   // timestamp =  new Timestamp(scanDateTime.get(Calendar.YEAR),scanDateTime.get(Calendar.MONTH),scanDateTime.get(Calendar.DATE),scanDateTime.get(Calendar.HOUR_OF_DAY),scanDateTime.get(Calendar.MINUTE),scanDateTime.get(Calendar.SECOND),scanDateTime.get(Calendar.MILLISECOND));
 		    timestamp = new Timestamp(scanDateTime.getTimeInMillis());
-	    	System.out.println("#getCountryTimeStamp#Time#"+timestamp);
+	    	//System.out.println("#getCountryTimeStamp#Time#"+timestamp);
 			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		System.out.println("#getCountryTimeStamp#"+countryCode+"#O#"+(System.currentTimeMillis()-t));
+		//System.out.println("#getCountryTimeStamp#"+countryCode+"#O#"+(System.currentTimeMillis()-t));
 		return timestamp;
 	}
 	
@@ -148,7 +148,7 @@ public class DateUtility {
 	public static void main(String []args) {
 		Calendar scanDateTime = new GregorianCalendar(TimeZone.getTimeZone("Asia/Kolkata"));
 		Timestamp stamp =new Timestamp(scanDateTime.getTimeInMillis());
-		System.out.println(stamp);
+		//System.out.println(stamp);
 	}
 	
 }

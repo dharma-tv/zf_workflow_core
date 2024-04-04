@@ -31,7 +31,7 @@ public class CallActivityElement extends BasicElement{
 		{
 			taskDAO = new BPMNTaskDAO(objBPMNData.getpUnitName());
 			task=createTask(objBPMNData,getObjElementModelInstance().getDomElement().getAttribute("id"),stringParam2,"callActivity",20);
-			System.out.println("#CallActivityElement#task.getTaskId()#"+task.getBpmnId());
+			//System.out.println("#CallActivityElement#task.getTaskId()#"+task.getBpmnId());
 //			taskDAO.begin();
 //			taskDAO.updateBPMNTaskStatus(task.getBpmnTaskId(), 20);
 //			taskDAO.commit();
@@ -68,7 +68,7 @@ public class CallActivityElement extends BasicElement{
 				if(objSequenceFlow.getConditionExpression()!=null)
 				{					
 					String conditionExpression = objSequenceFlow.getConditionExpression().getTextContent();
-					System.out.println("conditionExpression ---> " + conditionExpression);
+					//System.out.println("conditionExpression ---> " + conditionExpression);
 					try 
 					{
 						boolean result = FlowConditionValidator.validateCondition(objBPMNData.getDataMap(), conditionExpression);

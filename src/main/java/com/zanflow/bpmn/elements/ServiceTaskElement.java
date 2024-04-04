@@ -36,7 +36,7 @@ public class ServiceTaskElement extends BasicElement
 				if(objSequenceFlow.getConditionExpression()!=null)
 				{					
 					String conditionExpression = objSequenceFlow.getConditionExpression().getTextContent();
-					System.out.println("conditionExpression ---> " + conditionExpression);
+					//System.out.println("conditionExpression ---> " + conditionExpression);
 					try 
 					{
 						boolean result = FlowConditionValidator.validateCondition(objBPMNData.getDataMap(), conditionExpression);

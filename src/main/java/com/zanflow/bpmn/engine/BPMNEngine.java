@@ -126,7 +126,7 @@ public class BPMNEngine {
 		URL path =Thread.currentThread().getContextClassLoader().getResource(searchKey+".bpmn");
 		if(path!=null)
 		{
-			System.out.println(path.getFile());
+			//System.out.println(path.getFile());
 			File file = new File(path.getFile());
 			objBpmnModelInstance = Bpmn.readModelFromFile(file);
 			BPMNProcess objBPMNProcess=new BPMNProcess();
@@ -224,9 +224,9 @@ public class BPMNEngine {
 			{
 				for (ModelElementInstance element : startInstances) 
 				{
-					System.out.println(element.getElementType().getTypeName());
-					System.out.println(element.getDomElement().getAttribute("id"));
-					System.out.println(element.getDomElement().getAttribute("name"));
+					//System.out.println(element.getElementType().getTypeName());
+					//System.out.println(element.getDomElement().getAttribute("id"));
+					//System.out.println(element.getDomElement().getAttribute("name"));
 					
 					StartEventElement objStartEventElement=new StartEventElement();
 					objStartEventElement.setObjBpmnModelInstance(objBpmnModelInstance);
@@ -254,6 +254,7 @@ public class BPMNEngine {
 					objBPMNTaskDAO.commit();
 					objBPMNData.setBpmnTaskId(objBPMNTask.getBpmnTaskId());
 					objBPMNData.setStepName(objBPMNTask.getElementId());
+					objBPMNData.setInitatedBy(userId);
 					objBPMNCompleterResultDTO=completeTask(objBPMNData);
 					objBPMNCompleterResultDTO.setBpmnTxRefNo(bpmnTxrefNo);
 //					ArrayList<String> nextSteps=objStartEventElement.completeTask(null);
@@ -328,9 +329,9 @@ public class BPMNEngine {
 			{
 				for (ModelElementInstance element : startInstances) 
 				{
-					System.out.println(element.getElementType().getTypeName());
-					System.out.println(element.getDomElement().getAttribute("id"));
-					System.out.println(element.getDomElement().getAttribute("name"));
+					//System.out.println(element.getElementType().getTypeName());
+					//System.out.println(element.getDomElement().getAttribute("id"));
+					//System.out.println(element.getDomElement().getAttribute("name"));
 					StartEventElement objStartEventElement=new StartEventElement();
 					objStartEventElement.setObjBpmnModelInstance(objBpmnModelInstance);
 					objStartEventElement.setObjElementModelInstance(element);
@@ -424,10 +425,11 @@ public class BPMNEngine {
 				{
 					objBPMNTaskDAO.updateBPMNTaskResponse(objBPMNData.getBpmnTaskId(), (String)objBPMNData.getDataMap().get("selectedresponse"));
 				}
+				objBPMNData.setInitatedBy(objBPMNProcessInfo.getInitatedBy());
 				objBPMNTaskDAO.updateBPMNProcessInfo(objBPMNProcessInfo);
 				objBPMNTaskDAO.commit();
 				ArrayList<String> nextSteps=objBaseElement.completeTask(objBPMNData);
-				System.out.println("#completeTask#nextSteps#"+nextSteps);
+				//System.out.println("#completeTask#nextSteps#"+nextSteps);
 				if(nextSteps!=null && nextSteps.size()>0)
 				{
 					for(String stepName:nextSteps)
@@ -468,9 +470,9 @@ public class BPMNEngine {
 								objBPMNData1.setBpmnTaskId(task.getBpmnTaskId());
 								objBPMNData1.setCompanyCode(task.getCompanyCode());
 								objBPMNData1.setBpmnTask(task);
-								System.out.println("objBPMNData1.getDataMap()#before#"+objBPMNData1.getDataMap());
+								//System.out.println("objBPMNData1.getDataMap()#before#"+objBPMNData1.getDataMap());
 								BPMNCompleterResultDTO objBPMNCompleterResultDTO1=completeTask(objBPMNData1);
-								System.out.println("objBPMNData1.getDataMap()#after#"+objBPMNData1.getDataMap());
+								//System.out.println("objBPMNData1.getDataMap()#after#"+objBPMNData1.getDataMap());
 								if(objBPMNCompleterResultDTO1.getBpmnNextSteps()!=null && objBPMNCompleterResultDTO1.getBpmnNextSteps().size()>0)
 								{
 									bpmnNextSteps.addAll(objBPMNCompleterResultDTO1.getBpmnNextSteps());
@@ -638,17 +640,17 @@ public class BPMNEngine {
 //				objBPMNTaskDAO.rollback();
 //			}
 //			objBPMNTaskDAO.close();
-//			System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
+//			//System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
 //			Thread.currentThread().sleep(3000);
 //			completeTask(objBPMNData);
 //		}
 		catch(Exception ex)
 		{
 			ex.printStackTrace();
-			System.out.println(ex.getMessage());
+			//System.out.println(ex.getMessage());
 			if(ex.getMessage().startsWith("Row was updated or deleted by another transaction"))
 			{
-				System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
+				//System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
 				if(objBPMNTaskDAO.isActive())
 				{
 					objBPMNTaskDAO.rollback();
@@ -676,10 +678,10 @@ public class BPMNEngine {
 	public BasicElement getStepElement(BpmnModelInstance objBpmnModelInstance,String stepName)
 	{
 		ModelElementInstance element=objBpmnModelInstance.getModelElementById(stepName);
-		System.out.println(element.getDomElement().getAttribute("id"));
-		System.out.println(element.getDomElement().getAttribute("name"));
-		System.out.println(element.getElementType().getTypeName());
-		System.out.println(element.getDomElement().getChildElements());
+		//System.out.println(element.getDomElement().getAttribute("id"));
+		//System.out.println(element.getDomElement().getAttribute("name"));
+		//System.out.println(element.getElementType().getTypeName());
+		//System.out.println(element.getDomElement().getChildElements());
 		BasicElement objBaseElement= BasicElement.getElement(objBpmnModelInstance, element,element.getElementType().getTypeName());
 		return objBaseElement;	
 	}

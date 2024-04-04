@@ -1,7 +1,9 @@
 package com.zanflow.bpmn.dao;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +23,7 @@ import com.zanflow.bpmn.exception.JPAPersistenceException;
 import com.zanflow.bpmn.model.BPMNProcess;
 import com.zanflow.bpmn.model.BPMNProcessInfo;
 import com.zanflow.bpmn.model.BPMNTask;
+import com.zanflow.bpmn.service.impl.KanbanServiceImpl;
 import com.zanflow.common.db.JPATransaction;
 import com.zanflow.common.db.JPersistenceProvider;
 import com.zanflow.kanban.dto.LanesDTO;
@@ -32,7 +35,7 @@ public class KanbanDAO extends JPATransaction
 
 	public KanbanDAO(String pJunitName)throws ApplicationException
 	{
-		System.out.println("#BpmnTaskDAO#pJunitName#"+pJunitName);
+		//System.out.println("#BpmnTaskDAO#pJunitName#"+pJunitName);
 		try {
             if(pJunitName != null && pJunitName.trim().length() > 0){
            	 strJPUnitName = pJunitName;
@@ -40,7 +43,7 @@ public class KanbanDAO extends JPATransaction
             else {
            	 throw new ApplicationException("Arguments are NULL, Unable to create JPersistenceProvider.");
             }
-            System.out.println("#pJunitName#"+strJPUnitName);
+            //System.out.println("#pJunitName#"+strJPUnitName);
        	 	objJProvider = new JPersistenceProvider(strJPUnitName);
 		} catch (ApplicationException e) {
 			e.printStackTrace();
@@ -62,7 +65,7 @@ public class KanbanDAO extends JPATransaction
 			{
 				this.objJProvider = objJProvider;
 				strJPUnitName = objJProvider.getpUnitName();
-				System.out.println("# BpmnTaskDAO objJProvider constructor invoked");
+				//System.out.println("# BpmnTaskDAO objJProvider constructor invoked");
 			}else{
 				throw new ApplicationException("BpmnTaskDAO : JPersistenceProvider is null");
 			}
@@ -85,7 +88,7 @@ public class KanbanDAO extends JPATransaction
 		BPMNTask task = new BPMNTask();
 
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + id);
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + id);
 			if (id >= 0) {
 
 				task = (BPMNTask) objJProvider.find(BPMNTask.class, id);
@@ -98,7 +101,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return task;
 	}
@@ -110,7 +113,7 @@ public class KanbanDAO extends JPATransaction
 		int timeDiff=0;
 
 		try {
-			System.out.println("#BpmnTaskDAO#findLastLockedTimeDiff#TaskId#" + id);
+			//System.out.println("#BpmnTaskDAO#findLastLockedTimeDiff#TaskId#" + id);
 			if (id >= 0) {
 
 				Object	obj = objJProvider.createNativeQuery("SELECT extract(epoch from (now() - ex.tasklockedtime )) / 60 FROM {h-schema}zf_txn_bpmntask ex where ex.bpmntaskid=:bpmntaskid").setParameter("bpmntaskid", id).getResultList().get(0);
@@ -122,14 +125,14 @@ public class KanbanDAO extends JPATransaction
 			} else {
 				throw new ApplicationException("Task Id is invalid");
 			}
-		System.out.println("diff "+timeDiff );
+		//System.out.println("diff "+timeDiff );
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(new Exception(e));
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return timeDiff;
 	}
@@ -137,7 +140,7 @@ public class KanbanDAO extends JPATransaction
 	public int deleteBPMNTask(long bpmnTaskId) throws ApplicationException 
 	{	
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#deleteBPMNTask#"+bpmnTaskId);
+		//System.out.println("#BpmnTaskDAO#deleteBPMNTask#"+bpmnTaskId);
 		int rows = 0;
 		try {
 			if (bpmnTaskId <= 0)
@@ -153,7 +156,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#deleteBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#deleteBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rows;
 
@@ -173,7 +176,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return newTask;
 	}
@@ -198,7 +201,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println( "#BpmnTaskDAO#updateBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println( "#BpmnTaskDAO#updateBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rows;
 	}
@@ -216,7 +219,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return newTask;
 	}
@@ -227,7 +230,7 @@ public class KanbanDAO extends JPATransaction
 		BPMNProcessInfo objBPMNProcessInfo = null;
 
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + bpmnTxRefNo);
+			//System.out.println("#BpmnTaskDAO#findBPMNTaskById#TaskId#" + bpmnTxRefNo);
 			if (bpmnTxRefNo!=null && bpmnTxRefNo.length()>0) {
 
 				objBPMNProcessInfo = (BPMNProcessInfo) objJProvider.find(BPMNProcessInfo.class, bpmnTxRefNo);
@@ -240,7 +243,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return objBPMNProcessInfo;
 	}
@@ -274,7 +277,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println( "#BpmnTaskDAO#updateBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println( "#BpmnTaskDAO#updateBPMNProcessInfo#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rows;
 	}
@@ -282,7 +285,7 @@ public class KanbanDAO extends JPATransaction
 	public int updateBPMNTaskStatus(long bpmnTaskId,int status) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
 		int iupdateCount=0;
 		try{
 			Query q=objJProvider.createQuery("update BPMNTask set statusCode=?1 where bpmnTaskId=?2");
@@ -296,7 +299,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -304,7 +307,7 @@ public class KanbanDAO extends JPATransaction
 	public int updateCompleteBPMNTaskStatus(long bpmnTaskId,int status,String userId) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
 		int iupdateCount=0;
 		try{
 			Query q=objJProvider.createQuery("update BPMNTask set statusCode=:statusCode,completedBy=:completedBy,taskcompletedate=now() where bpmnTaskId=:bpmnTaskId");
@@ -319,7 +322,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -327,7 +330,7 @@ public class KanbanDAO extends JPATransaction
 	public int updateBPMNTaskStatus(long bpmnTaskId,int status,String userId) throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
+		//System.out.println("#BpmnTaskDAO#updateBPMNTaskStatus#"+bpmnTaskId+"#"+status);
 		int iupdateCount=0;
 		Query q;
 		try{
@@ -346,7 +349,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#updateTaskStatus#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return iupdateCount;
 	}
@@ -356,7 +359,7 @@ public class KanbanDAO extends JPATransaction
 	public List<BPMNTask> getBPMNTasksByTXREFNO(String txrefno)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
 		List<BPMNTask> bmpnTaskList=null;
 		try
 		{
@@ -372,7 +375,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return bmpnTaskList;
 	  }
@@ -380,7 +383,7 @@ public class KanbanDAO extends JPATransaction
 	public List<BPMNTask> getActiveTasks(String txrefno)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
+		//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#"+txrefno);
 		List<BPMNTask> bmpnTaskList=null;
 		try
 		{
@@ -396,7 +399,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return bmpnTaskList;
 	  }
@@ -404,7 +407,7 @@ public class KanbanDAO extends JPATransaction
 	public List<LanesDTO> getActiveCardList(String companyCode, String boardid)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#KanbanDAO#getActiveCardList#");
+		//System.out.println("#KanbanDAO#getActiveCardList#");
 		List<BPMNTask> bmpnTaskList=null;
 		List<LanesDTO> lanelistDTO = new ArrayList<LanesDTO>();
 		try
@@ -443,7 +446,23 @@ public class KanbanDAO extends JPATransaction
 						task.getLockedUser(),task.getBpmnId(),task.getCompanyCode());
 				dto.setStepLabel(task.getStepLabel());
 				dto.setTaskSubject(task.getTaskSubject());
-				dto.setTaskType("CARD");
+				dto.setTaskType(task.getElementType());
+				
+				dto.setAssigneduser(task.getAssignedUser());
+				dto.setPriority(task.getPriority());
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				if(task.getDueDate() != null){
+					dto.setDueDate(df.format(new Date(task.getDueDate().getTime())));
+				}
+				if(task.getTaskCreatedDate() != null){
+					dto.setCreatedDate(df.format(new Date(task.getTaskCreatedDate().getTime())));
+				}
+				if(task.getTaskCompleteDate() != null){
+					dto.setCompletedDate(df.format(new Date(task.getTaskCompleteDate().getTime())));
+				}
+				if(task.getLastModifiedDate() != null){
+					dto.setLastModifiedDate(df.format(new Date(task.getLastModifiedDate().getTime())));
+				}
 				String columnname = task.getElementId();
 				if(!columnNames.contains(columnname)) {
 					columnname = lanelistDTO.get(0).getLabel();
@@ -470,11 +489,73 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return lanelistDTO;
 	  }
 	
+	public List<TaskDTO> getTaskList(String companyCode, String userId)throws ApplicationException
+	{
+		long t1 = System.currentTimeMillis();
+		//System.out.println("#KanbanDAO#getActiveCardList#");
+		List<BPMNTask> bmpnTaskList=null;
+		ArrayList<TaskDTO> taskList = new ArrayList<TaskDTO>();
+		try
+		{
+			String query="select t from BPMNTask t, BPMNProcess p where p.rendertype = 'BOARD' and t.bpmnId = p.bpmnId and p.companycode = :companyCode and t.companyCode = :companyCode and t.assignedUser= :assignedUser";
+			
+			Query objQuery=objJProvider.createQuery(query);
+			objQuery.setParameter("assignedUser", userId);
+			objQuery.setParameter("companyCode",companyCode);
+			
+			bmpnTaskList=objQuery.getResultList();
+			
+		
+	        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	        
+		if (bmpnTaskList != null && bmpnTaskList.size()>0) {
+			for(BPMNTask task:bmpnTaskList) {
+				TaskDTO dto = new TaskDTO(task.getBpmnTaskId(),task.getBpmnTxRefNo(),task.getElementId(),"",task.getTaskSubject()
+						//,simpleDateFormat.format(task.getTaskCreatedDate()),simpleDateFormat.format(task.getDueDate()),
+						, "", "",
+						task.getLockedUser(),task.getBpmnId(),task.getCompanyCode());
+				dto.setStepLabel(task.getStepLabel());
+				dto.setTaskSubject(task.getTaskSubject());
+				dto.setTaskType(task.getElementType());
+				
+				dto.setAssigneduser(task.getAssignedUser());
+				dto.setPriority(task.getPriority());
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				if(task.getDueDate() != null){
+					dto.setDueDate(df.format(new Date(task.getDueDate().getTime())));
+				}
+				if(task.getTaskCreatedDate() != null){
+					dto.setCreatedDate(df.format(new Date(task.getTaskCreatedDate().getTime())));
+				}
+				if(task.getTaskCompleteDate() != null){
+					dto.setCompletedDate(df.format(new Date(task.getTaskCompleteDate().getTime())));
+				}
+				if(task.getLastModifiedDate() != null){
+					dto.setLastModifiedDate(df.format(new Date(task.getLastModifiedDate().getTime())));
+				}
+				taskList.add(dto);
+			}
+		}
+		
+			
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+			//log.printErrorMessage(ex);
+			throw new ApplicationException(ex);
+		}
+		finally
+		{
+			//System.out.println("#BpmnTaskDAO#getBPMNTasksByTXREFNO#End#TT#" + (System.currentTimeMillis() - t1));
+		}
+		return taskList;
+	  }
 	
 
 	
@@ -491,7 +572,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#createBPMNTask#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 	}
 	
@@ -501,7 +582,7 @@ public class KanbanDAO extends JPATransaction
 		BPMNProcess objBPMNProcess = new BPMNProcess();
 
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#bpmnId#"+ bpmnId+"#companyCode#"+companyCode);
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#bpmnId#"+ bpmnId+"#companyCode#"+companyCode);
 			if (bpmnId !=null) {
 //			objBPMNProcess = (BPMNProcess) objJProvider.find(BPMNProcess.class, bpmnId);
 				Query objQuery=objJProvider.createQuery("select ob from BPMNProcess ob where bpmnId=:bpmnId and companycode=:companyCode");
@@ -526,50 +607,50 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return objBPMNProcess;
 	}
 	
 	public  String getSeqVal(String seqName,int size,int value)throws ApplicationException
 	{
-		System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
  		String seqVal = null;
 		long t1 = System.currentTimeMillis();
 		try{
-			System.out.println("am in try");
+			//System.out.println("am in try");
 			if(seqName == null || size<=0){
 				throw new ApplicationException("SeqName may be null or size < then 0 in GenTxnRefnoSeqVal()");
 			}
 			seqVal = (String)objJProvider.createNativeQuery("SELECT LPAD(CAST(nextval('{h-schema}"+seqName+"') AS VARCHAR),"+size+",'"+value+"')").getSingleResult();
-			System.out.println("seqVal = "+seqVal);
+			//System.out.println("seqVal = "+seqVal);
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(e);
 		}	
-		System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
-		System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
+		//System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
 		return seqVal;
 	}
 	
 	public  String getProcessList(String seqName,int size,int value)throws ApplicationException
 	{
-		System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#"+seqName+"#"+size+"#"+value);
  		String seqVal = null;
 		long t1 = System.currentTimeMillis();
 		try{
-			System.out.println("am in try");
+			//System.out.println("am in try");
 			if(seqName == null || size<=0){
 				throw new ApplicationException("SeqName may be null or size < then 0 in GenTxnRefnoSeqVal()");
 			}
 			seqVal = (String)objJProvider.createNativeQuery("SELECT LPAD(CAST(nextval('{h-schema}"+seqName+"') AS VARCHAR),"+size+",'"+value+"')").getSingleResult();
-			System.out.println("seqVal = "+seqVal);
+			//System.out.println("seqVal = "+seqVal);
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(e);
 		}	
-		System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
-		System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
+		//System.out.println("#BpmnTaskDAO#getSeqVal#E#TT#"+(System.currentTimeMillis()-t1));
+		//System.out.println("#BpmnTaskDAO#getSeqVal#seqval#"+seqVal);
 		return seqVal;
 	}
 	
@@ -580,10 +661,10 @@ public class KanbanDAO extends JPATransaction
 		JSONArray steps = null;
 		JSONObject json =new JSONObject();
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#TaskId#" + bpmnId);
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#TaskId#" + bpmnId);
 			if (bpmnId !=null) {
 			 obj=  objJProvider.createNativeQuery("select processconfig ->> 'steps' as Steps, processconfig ->> 'fields' as fields, processconfig ->> 'choices' as choices, processconfig ->> 'fieldSet' as fieldSet,  processconfig ->> 'tabs' as tabs, processconfig ->> 'bpmn' as bpmn, companyCode from {h-schema}zf_cfg_bpmnprocess where bpmnid = :bpmnid").setParameter("bpmnid", bpmnId).getResultList();
-			System.out.println("obj "+obj.get(0)[0]);
+			//System.out.println("obj "+obj.get(0)[0]);
 			steps = new  JSONArray(String.valueOf(obj.get(0)[0]));
 			//steps = obj.get(0).toJSONArray(steps);
 			JSONObject step = null;
@@ -604,7 +685,7 @@ public class KanbanDAO extends JPATransaction
 			JSONObject processData = new JSONObject();
 			json.put("processdata", processData);
 
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -613,7 +694,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	}
@@ -626,10 +707,10 @@ public class KanbanDAO extends JPATransaction
 		JSONArray steps = null;
 		JSONObject json =new JSONObject();
 		try {
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#TaskId#" + bpmnId);
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#TaskId#" + bpmnId);
 			if (bpmnId !=null) {
 			 obj=  objJProvider.createNativeQuery("select processconfig ->> 'steps' as Steps, processconfig ->> 'fields' as fields, processconfig ->> 'choices' as choices, processconfig ->> 'fieldSet' as fieldSet,  processconfig ->> 'tabs' as tabs, processconfig ->> 'bpmn' as bpmn from {h-schema}zf_cfg_bpmnprocess where bpmnid = :bpmnid").setParameter("bpmnid", bpmnId).getResultList();
-			System.out.println("obj "+obj.get(0)[0]);
+			//System.out.println("obj "+obj.get(0)[0]);
 			steps = new  JSONArray(String.valueOf(obj.get(0)[0]));
 			//steps = obj.get(0).toJSONArray(steps);
 			JSONObject step = null;
@@ -657,7 +738,7 @@ public class KanbanDAO extends JPATransaction
 			
 			json.put("processdata", processData);
 			
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -666,7 +747,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	}
@@ -681,7 +762,7 @@ public class KanbanDAO extends JPATransaction
 		JSONObject json =new JSONObject();
 		try {
 			 obj=  objJProvider.createNativeQuery("select PROCESSID, COUNTRYCODE, PROCESSNAME as NAME, BPMNID, '3456' as TAT, 'test' as DESCRIPTION from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode").setParameter("companyCode", companyCode).getResultList();
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			JSONArray array = new JSONArray();
 			for(int i=0 ; i < obj.size() ; i++) {
 				JSONObject node = new JSONObject();
@@ -698,7 +779,7 @@ public class KanbanDAO extends JPATransaction
 			
 			json.put("processList", array);
 			
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		catch (Exception e) {
 			e.printStackTrace();
@@ -707,7 +788,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	
@@ -723,7 +804,7 @@ public class KanbanDAO extends JPATransaction
 				response="Not Available";
 			}
 			obj=  objJProvider.createNativeQuery("select PROCESSNAME as NAME from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processid=:boardid").setParameter("companyCode", companyCode).setParameter("boardid", boardid).getResultList();
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			if(obj!= null && obj.size()>0) {
 				response="Not Available";
 			}
@@ -735,7 +816,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return response;
 	
@@ -751,7 +832,7 @@ public class KanbanDAO extends JPATransaction
 			 obj =  objJProvider.createNativeQuery("select processid,CAST(json as TEXT) from {h-schema}zf_cfg_bpmnworkflowdtl where companyCode = :companyCode and processId= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).getResultList();
 			
 			 
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			for(int i=0 ; i < obj.size() ; i++) {
 				json.put("boardid", obj.get(i)[0]);
 				json.put("companycode", companyCode);
@@ -759,7 +840,7 @@ public class KanbanDAO extends JPATransaction
 				json.put("boardconfig", new JSONObject(boardconfig));
 			}
 			
-			System.out.println("json "+json.toString());
+			//System.out.println("json "+json.toString());
 			}	
 		catch (Exception e) {
 			e.printStackTrace();
@@ -768,7 +849,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return json;
 	
@@ -779,12 +860,21 @@ public class KanbanDAO extends JPATransaction
 		long t1 = System.currentTimeMillis();
 		
 		try {
-			 objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnworkflowdtl where companyCode = :companyCode and processId= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
-			 objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnprocess where companyCode = :companyCode and processId= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
-			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_userdocs where companyCode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companyCode = :companyCode and processId= :processId)").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
-			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_comments where companyCode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companyCode = :companyCode and processId= :processId)").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
-			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_bpmntask where companyCode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companyCode = :companyCode and processId= :processId)").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
-			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_bpmnprocessinfo where companyCode = :companyCode and processId= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			 
+			 if(boardid.length()==5) {
+				List<Object> obj =  objJProvider.createNativeQuery("select processtype from {h-schema}zf_cfg_bpmnworkflowdtl where companycode=:companyCode and processid=:processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).getResultList();
+				if(obj.size()>0) {
+					String idtype = String.valueOf(obj.get(0));
+					objJProvider.createNativeQuery("insert into {h-schema}zf_cfg_available_ids (companycode, idtype, id) values (:companyCode, :idtype, :id)").setParameter("companyCode", companyCode).setParameter("idtype", idtype).setParameter("id", boardid).executeUpdate();
+				}
+			 }
+			 objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnworkflowdtl where companycode = :companyCode and processid= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			 objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_bpmnprocess where companycode = :companyCode and processid= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_userdocs where companycode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId)").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_comments where companycode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId)").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_bpmntask where companycode = :companyCode and bpmntxrefno in (select bpmntxrefno from  {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId)").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			 objJProvider.createNativeQuery("delete from {h-schema}zf_txn_bpmnprocessinfo where companycode = :companyCode and processid= :processId").setParameter("companyCode", companyCode).setParameter("processId", boardid).executeUpdate();
+			
 		}	
 		catch (Exception e) {
 			e.printStackTrace();
@@ -793,7 +883,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#KanbanDAO#deleteBoard#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#KanbanDAO#deleteBoard#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 	
 	}
@@ -807,9 +897,34 @@ public class KanbanDAO extends JPATransaction
 	    
 		try {
 			objJProvider.begin();
+			String boardid = "B0001";
+			String processtype = "BOARD";
+			List<Object> obj1 = objJProvider.createNativeQuery("select id from {h-schema}zf_cfg_available_ids where companycode = :companycode and idtype = :processtype order by id asc LIMIT 1").setParameter("companycode", companyCode).setParameter("processtype", processtype).getResultList();
+			if(obj1.size()>0) {
+				String tempProcessId = String.valueOf(obj1.get(0));
+				if(tempProcessId.length()==5) {
+					//String intprocess = tempProcessId.substring(1);
+					boardid = tempProcessId;
+				}
+				objJProvider.createNativeQuery("delete from {h-schema}zf_cfg_available_ids where companycode=:companyCode and idtype=:processtype  and id=:id ").setParameter("companyCode", companyCode).setParameter("processtype", processtype).setParameter("id", tempProcessId).executeUpdate();
+				
+			}else{
+			List<Object> obj = objJProvider.createNativeQuery("select processid from {h-schema}zf_cfg_bpmnworkflowdtl where companycode = :companycode and processtype = :processtype order by processid desc LIMIT 1").setParameter("companycode", companyCode).setParameter("processtype", processtype).getResultList();
+			if(obj.size()>0) {
+				String tempProcessId = String.valueOf(obj.get(0));
+				if(tempProcessId.length()==5) {
+					String intprocess = tempProcessId.substring(1);
+					boardid = processtype.substring(0, 1) + String.format("%04d", Integer.valueOf(intprocess)+1);		
+				}
+			}
+			}
+			
+			process.put("BOARDID", boardid);
+			processjson.put("process", process);
+			
 			 count =  objJProvider.createNativeQuery("insert into {h-schema}zf_cfg_bpmnworkflowdtl (companycode, processid, processname, bpmnid, countrycode, json, branchname, processtype) values (:1,:2,:3,:4,:5,:6,:7,:8)")
 					 .setParameter("1", companyCode)
-					 .setParameter("2", (String)process.get("BOARDID"))
+					 .setParameter("2", boardid)
 					 .setParameter("3", (String)process.get("NAME"))
 					 .setParameter("4", "NA")
 					 .setParameter("5", "NA")
@@ -820,6 +935,10 @@ public class KanbanDAO extends JPATransaction
 			objJProvider.commit();
 			if(count == 0) {
 				message="Unable to create process";
+			}else {
+				KanbanServiceImpl objKanbanServiceImpl=new KanbanServiceImpl();	
+				//System.out.println("#BpmnTaskDAO#deployBoard#processjson#"+ processjson.toString());
+				objKanbanServiceImpl.deployBoard(companyCode,processjson.toString());
 			}
 			}	
 		catch (Exception e) {
@@ -830,7 +949,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#findBPMNProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return message;
 	
@@ -849,7 +968,7 @@ public class KanbanDAO extends JPATransaction
 	    JSONObject json = new JSONObject(processjson);
 	    JSONObject process = (JSONObject) json.get("process");
 	    
-	    System.out.println("companyCode#"+companyCode+"#process"+process.get("BOARDID"));
+	    //System.out.println("companyCode#"+companyCode+"#process"+process.get("BOARDID"));
 	   try {
 			objJProvider.begin();
 			count =  objJProvider.createNativeQuery("UPDATE {h-schema}zf_cfg_bpmnworkflowdtl set json=:json, processname=:processname where companycode=:companycode and  processid=:processid ")
@@ -869,7 +988,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return message;
 	
@@ -879,7 +998,7 @@ public class KanbanDAO extends JPATransaction
 	public List<ProcessDTO> getBoardList(String companyCode,String userId, String userType)throws ApplicationException
 	{
 		long t1 = System.currentTimeMillis();
-		System.out.println("#kanbabDAO#getBoardList#"+companyCode+"#"+userId);
+		//System.out.println("#kanbabDAO#getBoardList#"+companyCode+"#"+userId);
 		List<Object[]> boardList=null;
 		List<ProcessDTO> dto = new ArrayList<ProcessDTO>();
 		try
@@ -891,7 +1010,7 @@ public class KanbanDAO extends JPATransaction
 			}
 			else
 			{
-				query="select t.processid, t.processname from {h-schema}zf_cfg_bpmnprocess t where initiaterole in (select roleid from  {h-schema}zf_id_membership where companyCode=:companyCode and userId=:userId and status='A') and isactive='Y' and rendertype='BOARD'";
+				query="select t.processid, t.processname from {h-schema}zf_cfg_bpmnprocess t where companyCode=:companyCode and isactive='Y' and rendertype='BOARD' and (processconfig -> 'process' ->'MEMBERLIST') \\?\\? :userId ";
 			}
 			Query objQuery=objJProvider.createNativeQuery(query);
 			if(!(userType!=null && userType.equalsIgnoreCase("admin"))) {
@@ -901,14 +1020,14 @@ public class KanbanDAO extends JPATransaction
 		    	objQuery.setParameter("companyCode", companyCode);
 		    }
 			boardList=objQuery.getResultList();
-			System.out.println(boardList.size() + " -------- " + boardList);
+			//System.out.println(boardList.size() + " -------- " + boardList);
 			for (int i = 0; i < boardList.size(); i++) {
 				 ProcessDTO processDTO = new ProcessDTO();
 			     processDTO.setProcessId((String) boardList.get(i)[0]);
 			     processDTO.setProcessname((String) boardList.get(i)[1]);
 			     dto.add(processDTO);
 			}
-			System.out.println(dto.size() + " -------- " + dto);
+			//System.out.println(dto.size() + " -------- " + dto);
 		}
 		catch(Exception ex)
 		{
@@ -918,7 +1037,7 @@ public class KanbanDAO extends JPATransaction
 		}
 		finally
 		{
-			System.out.println("#kanbanDAO#getBoardList#End#TT#" + (System.currentTimeMillis() - t1));
+			//System.out.println("#kanbanDAO#getBoardList#End#TT#" + (System.currentTimeMillis() - t1));
 		}
 		return dto;
 	  }
@@ -933,7 +1052,7 @@ public class KanbanDAO extends JPATransaction
 	//TODO - used in kanban
 	public int removeComments(String refNo, long taskid) throws ApplicationException {
 		try{
-			System.out.println("refNo ---> "+refNo+" taskid  ---> "+taskid );
+			//System.out.println("refNo ---> "+refNo+" taskid  ---> "+taskid );
 			String query = "delete from BPMNComments where taskId=:taskId and refId=:refId";
 			int commentsCnt = objJProvider.createQuery(query).setParameter("taskId", taskid).setParameter("refId", refNo).executeUpdate();
 			return commentsCnt;

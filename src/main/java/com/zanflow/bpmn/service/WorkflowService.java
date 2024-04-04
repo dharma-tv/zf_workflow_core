@@ -37,6 +37,7 @@ import com.zanflow.bpmn.exception.ApplicationException;
 import com.zanflow.bpmn.model.TXNDocments;
 import com.zanflow.bpmn.service.impl.WorkflowServiceImpl;
 import com.zanflow.cms.serv.AWSS3ServiceImpl;
+import com.zanflow.cms.serv.GoogleCloudStorageServiceImpl;
 import com.zanflow.common.db.Constants;
 
 @RestController
@@ -44,19 +45,20 @@ import com.zanflow.common.db.Constants;
 public class WorkflowService {
 
 	
-	@RequestMapping(value="/getTaskList/{companyCode}/{userId}/{filterType}/{filterValue}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/getTaskList/{companyCode}/{userId}/{filterType}/{filterValue}/{bpmnid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ArrayList<TaskDTO> getTaskList(HttpServletRequest request, HttpServletResponse 
-			 response,@PathVariable String companyCode, @PathVariable String userId,@PathVariable String filterType, @PathVariable String filterValue) throws ApplicationException {
+			 response,@PathVariable String companyCode, @PathVariable String userId,@PathVariable String filterType, @PathVariable String filterValue, @PathVariable String bpmnid) throws ApplicationException {
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
 		ArrayList<TaskDTO> taskList = null;
 		try
 		{
-			taskList=service.getActiveTaskList(companyCode,userId,filterType,filterValue);
+			taskList=service.getActiveTaskList(companyCode,userId,filterType,filterValue, bpmnid);
 		}
 		catch(Exception ex)
 		{
 			ex.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return taskList;
 	}
 	
@@ -76,11 +78,28 @@ public class WorkflowService {
 			dto = processDAO.getProcessList(companyCode,userId,processMap);
 			processMap.put("BAM", processDAO.getBAMProcessList(companyCode, userId, "BAM"));
 			processMap.put("ENQUIRY", processDAO.getBAMProcessList(companyCode, userId, "ENQUIRY"));
-			
+			System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 			return new ResponseEntity<Map<String,List<ProcessDTO>>>(processMap, HttpStatus.OK);
 		} catch (ApplicationException e) {
 			return new ResponseEntity<Map<String,List<ProcessDTO>>>(
 					processMap,(e.getErrCode() == 1) ? HttpStatus.NO_CONTENT : HttpStatus.NO_CONTENT);
+		}
+	}
+	
+	@RequestMapping(value="/getAppDashboardData", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Map<String,String>> getAppDashboardData(HttpServletRequest request, HttpServletResponse 
+			 response) throws ApplicationException {
+		
+		Map<String,String> data = new HashMap<String, String>();
+		String companyCode = getCompanyCode(request);
+		try (ProcessDAO processDAO = new ProcessDAO(Constants.DB_PUNIT)) {
+			
+			data = processDAO.getDashboardData(companyCode);
+			System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
+			return new ResponseEntity<Map<String,String>>(data, HttpStatus.OK);
+		} catch (ApplicationException e) {
+			return new ResponseEntity<Map<String,String>>(
+					data,(e.getErrCode() == 1) ? HttpStatus.NO_CONTENT : HttpStatus.NO_CONTENT);
 		}
 	}
 	
@@ -96,7 +115,7 @@ public class WorkflowService {
 				throw new ApplicationException("Insufficient info: Company code or user Id is empty");
 			}
 			//dto = processDAO.getProcessList(companyCode,"ALL");
-			
+			System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 			return new ResponseEntity<List<ProcessDTO>>(dto, HttpStatus.OK);
 		} catch (ApplicationException e) {
 			return new ResponseEntity<List<ProcessDTO>>(
@@ -111,12 +130,13 @@ public class WorkflowService {
 		ResponseDTO dto =new TaskDTO();
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
 		try {
-			System.out.println("getTask --> BPMN ID --> " + task.getBpmnId());
+			//System.out.println("getTask --> BPMN ID --> " + task.getBpmnId());
 			dto = service.getTask(task);
-			System.out.println("getTask --> BPMN ID --> dto " + dto);
+			//System.out.println("getTask --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return new ResponseEntity<ResponseDTO>(dto,HttpStatus.OK);
 	}
 	
@@ -126,12 +146,31 @@ public class WorkflowService {
 		ResponseDTO dto =new TaskDTO();
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
 		try {
-			System.out.println("getLaunchTask --> BPMN ID --> " + bpmnId);
+			//System.out.println("getLaunchTask --> BPMN ID --> " + bpmnId);
 			dto = service.getLaunchTaskStep(bpmnId, request.getHeader("userId"), request.getHeader("companycode"));
-			System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
+			//System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
+		return new ResponseEntity<ResponseDTO>(dto,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/getExtLaunchTask/{bpmnId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseDTO> getExtLaunchTask(HttpServletRequest request, HttpServletResponse 
+			response,@PathVariable String bpmnId) {
+		ResponseDTO dto =new TaskDTO();
+		WorkflowServiceImpl service = new WorkflowServiceImpl();
+		try (ProcessDAO processDAO = new ProcessDAO(Constants.DB_PUNIT))  {
+			if(processDAO.isExternalProcess(request.getHeader("companycode"), bpmnId)) {
+				//System.out.println("getLaunchTask --> BPMN ID --> " + bpmnId);
+				dto = service.getLaunchTaskStep(bpmnId, request.getHeader("userId"), request.getHeader("companycode"));
+				//System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return new ResponseEntity<ResponseDTO>(dto,HttpStatus.OK);
 	}
 
@@ -141,12 +180,13 @@ public class WorkflowService {
 		ResponseDTO dto =new TaskDTO();
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
 		try {
-			System.out.println("getEnquiryDetailTask --> BPMN ID --> " + refNo);
+			//System.out.println("getEnquiryDetailTask --> BPMN ID --> " + refNo);
 			dto = service.getEnqDetailStep(refNo);
-			System.out.println("getEnquiryDetailTask --> BPMN ID --> dto " + dto);
+			//System.out.println("getEnquiryDetailTask --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return new ResponseEntity<ResponseDTO>(dto,HttpStatus.OK);
 	}
 	
@@ -156,12 +196,13 @@ public class WorkflowService {
 		ResponseDTO dto =new TaskDTO();
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
 		try {
-			System.out.println("getWidgetDetail --> BPMN ID --> " + widgetid);
+			//System.out.println("getWidgetDetail --> BPMN ID --> " + widgetid);
 			dto = service.getWidgetDetail(widgetid, request.getHeader("userId"), request.getHeader("companycode"));
-			System.out.println("getWidgetDetail --> BPMN ID --> dto " + dto);
+			//System.out.println("getWidgetDetail --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return new ResponseEntity<ResponseDTO>(dto,HttpStatus.OK);
 	}
 	
@@ -170,16 +211,17 @@ public class WorkflowService {
 			response,@PathVariable String interfaceName, @RequestBody String payload ) {
 		ResponseDTO dto =new TaskDTO();
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
-		System.out.println("payload "+payload);
+		//System.out.println("payload "+payload);
 		try {
 			String bpmnid = (String)request.getAttribute("bpmnid");
 			String processid = (String)request.getAttribute("bpmnid");
-			System.out.println("getLaunchTask-->BPMN ID-->" + bpmnid+"#processid#"+processid);
+			//System.out.println("getLaunchTask-->BPMN ID-->" + bpmnid+"#processid#"+processid);
 			
-			System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
+			//System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return new ResponseEntity<String>("Success",HttpStatus.OK);
 	}
 	
@@ -190,12 +232,13 @@ public class WorkflowService {
 		ResponseDTO dto =new TaskDTO();
 		WorkflowServiceImpl service = new WorkflowServiceImpl();
 		try {
-			System.out.println("getLaunchTask --> BPMN ID --> " + bpmnId);
+			//System.out.println("getLaunchTask --> BPMN ID --> " + bpmnId);
 			dto = service.getLaunchTaskStep(bpmnId, request.getHeader("userId") , request.getHeader("companycode"));
-			System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
+			//System.out.println("getLaunchTask --> BPMN ID --> dto " + dto);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return new ResponseEntity<ResponseDTO>(dto,HttpStatus.OK);
 	}
 	
@@ -216,6 +259,7 @@ public class WorkflowService {
 				objBPMNCompleterResultDTO.setResponseCode("ERROR");
 				objBPMNCompleterResultDTO.setResponsMsg("Unable complete Task#"+ex.getMessage());
 			}
+		 	System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 			return objBPMNCompleterResultDTO;
 	 }
 	 
@@ -236,6 +280,7 @@ public class WorkflowService {
 				objBPMNCompleterResultDTO.setResponseCode("ERROR");
 				objBPMNCompleterResultDTO.setResponsMsg("Unable complete Task#"+ex.getMessage());
 			}
+		 System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 			return objBPMNCompleterResultDTO;
 	 }
 	 
@@ -256,6 +301,7 @@ public class WorkflowService {
 				objBPMNCompleterResultDTO.setResponseCode("ERROR");
 				objBPMNCompleterResultDTO.setResponsMsg("Unable complete Task#"+ex.getMessage());
 			}
+		 	System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 			return objBPMNCompleterResultDTO;
 	 }
 	 
@@ -276,6 +322,7 @@ public class WorkflowService {
 			objBPMNCompleterResultDTO.setResponseCode("ERROR");
 			objBPMNCompleterResultDTO.setResponsMsg("Unable Initiate Transaction#"+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objBPMNCompleterResultDTO;
 	 }
 	 
@@ -298,6 +345,7 @@ public class WorkflowService {
 			 objTXNDocumentDTO.setResponseCode("ERROR");
 			 objTXNDocumentDTO.setResponsMsg(ex.getLocalizedMessage());
 		 }
+		 System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		 return objTXNDocumentDTO;
 	 }
 	 
@@ -310,7 +358,7 @@ public class WorkflowService {
 			 long docId=Long.parseLong(documentId);
 			 TXNDocments objTxnDocments=objWorkflowServiceImpl.getDocument(docId);
 			 /*REtrieve document content from S3 content store*/
-			 AWSS3ServiceImpl s3service = new AWSS3ServiceImpl();
+			 GoogleCloudStorageServiceImpl s3service = new GoogleCloudStorageServiceImpl();
 			 objTxnDocments.setDocument(s3service.getDocument(objTxnDocments.getCompanyCode(), documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf("."))));
 			 HttpHeaders header = new HttpHeaders();
 			 header.setContentType(MediaType.valueOf(objTxnDocments.getDocumentType()));
@@ -319,6 +367,7 @@ public class WorkflowService {
 			 header.set("Content-Disposition", "attachment; filename=" + objTxnDocments.getDocumentName());
 			 //ContentDisposition contentDisposition = ContentDisposition.builder("attachment").filename("Filename").build();
 			 //header.setContentDisposition(contentDisposition);
+			 System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 			 return new ResponseEntity<>(objTxnDocments.getDocument(), header, HttpStatus.OK);
 		 }
 		 catch(Exception ex)
@@ -338,8 +387,8 @@ public class WorkflowService {
 			 long docId=Long.parseLong(documentId);
 			 TXNDocments objTxnDocments=objWorkflowServiceImpl.getDocument(docId);
 			 int docCount=objWorkflowServiceImpl.deleteDocument(companyCode,docId);
-			 AWSS3ServiceImpl service = new AWSS3ServiceImpl();
-			 service.deleteFileS3Bucket(companyCode, documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf(".")));
+			 GoogleCloudStorageServiceImpl service = new GoogleCloudStorageServiceImpl();
+			 service.deleteFileBucket(companyCode, documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf(".")));
 			 objResponseDTO.setResponseCode("SUCCESS");
 			 objResponseDTO.setResponsMsg(docCount+"#File deleted successfully");
 		 }
@@ -349,6 +398,7 @@ public class WorkflowService {
 			 objResponseDTO.setResponseCode("ERROR");
 			 objResponseDTO.setResponsMsg(ex.getLocalizedMessage());
 		 }
+		 System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		 return objResponseDTO;
 	 }
 	 
@@ -368,6 +418,7 @@ public class WorkflowService {
 			 objTXNDocumentListDTO.setResponseCode("ERROR");
 			 objTXNDocumentListDTO.setResponsMsg(ex.getLocalizedMessage());
 		 }
+		 System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		 return objTXNDocumentListDTO;
 	 }
 	
@@ -380,7 +431,7 @@ public class WorkflowService {
 		try
 		{
 			json=objWorkflowServiceImpl.getDSProcessList(companyCode, processtype);
-			System.out.println("output "+json.toString());
+			//System.out.println("output "+json.toString());
 		}
 		catch (Exception ex) 
 		{
@@ -389,6 +440,7 @@ public class WorkflowService {
 			objBPMNCompleterResultDTO.setResponseCode("ERROR");
 			objBPMNCompleterResultDTO.setResponsMsg("Unable Initiate Transaction#"+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return json.toString();
 	 }
 	 
@@ -403,7 +455,7 @@ public class WorkflowService {
 		try
 		{
 			json=objWorkflowServiceImpl.getDSProcess(companyCode,processId);
-			System.out.println("output "+json.toString());
+			//System.out.println("output "+json.toString());
 		}
 		catch (Exception ex) 
 		{
@@ -412,6 +464,7 @@ public class WorkflowService {
 			objBPMNCompleterResultDTO.setResponseCode("ERROR");
 			objBPMNCompleterResultDTO.setResponsMsg("Unable Initiate Transaction#"+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return json.toString();
 	 }
 	 
@@ -421,14 +474,14 @@ public class WorkflowService {
 	 response,@RequestBody String processJson, @PathVariable String processtype) throws Exception
 	 {
 		String companyCode =getCompanyCode(request);
-		System.out.println("processJson --- > " + processJson);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("processJson --- > " + processJson);
+		//System.out.println("companyCode --- > " + companyCode);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
 		{
 			objWorkflowServiceImpl.createDSProcess(companyCode,processJson, processtype);
-			//System.out.println("output "+json.toString());
+			////System.out.println("output "+json.toString());
 			objResponseDTO.setResponseCode("SUCCESS");
 			objResponseDTO.setResponsMsg("Process Created");
 		}
@@ -438,6 +491,34 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable Create Process#"+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
+		return objResponseDTO;
+	 }
+	 
+	 
+	 @RequestMapping(value="/deleteProcess/{processId}", method = RequestMethod.POST , produces = MediaType.APPLICATION_JSON_VALUE)
+	 public ResponseDTO deleteProcess(HttpServletRequest request, HttpServletResponse 
+	 response, @PathVariable String processId) throws Exception
+	 {
+		String companyCode =getCompanyCode(request);
+		//System.out.println("processId --- > " + processId);
+		//System.out.println("companyCode --- > " + companyCode);
+		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
+		ResponseDTO objResponseDTO=new ResponseDTO();
+		try
+		{
+			objWorkflowServiceImpl.deleteDSProcess(companyCode,processId);
+			////System.out.println("output "+json.toString());
+			objResponseDTO.setResponseCode("SUCCESS");
+			objResponseDTO.setResponsMsg("Process delete");
+		}
+		catch (Exception ex) 
+		{
+			ex.printStackTrace();
+			objResponseDTO.setResponseCode("ERROR");
+			objResponseDTO.setResponsMsg("Unable delete Process#"+ex.getMessage());
+		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 
@@ -445,14 +526,14 @@ public class WorkflowService {
 	 public ResponseDTO saveDSProcess(HttpServletRequest request, HttpServletResponse 
 	 response,@RequestBody String processJson, @PathVariable String companyCode) throws Exception
 	 {
-		System.out.println("processJson --- > " + processJson);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("processJson --- > " + processJson);
+		//System.out.println("companyCode --- > " + companyCode);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
 		{
 			objWorkflowServiceImpl.saveDSProcess(companyCode,processJson);
-			//System.out.println("output "+json.toString());
+			////System.out.println("output "+json.toString());
 			objResponseDTO.setResponseCode("SUCCESS");
 			objResponseDTO.setResponsMsg("Process saved");
 		}
@@ -462,6 +543,7 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable save Process due to "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 	 
@@ -478,16 +560,16 @@ public class WorkflowService {
 	 public ResponseDTO deployDSProcess(HttpServletRequest request, HttpServletResponse 
 	 response,@RequestBody String processJson, @PathVariable String companyCode, @PathVariable String newVersion) throws Exception
 	 {
-		System.out.println("processJson --- > " + processJson);
-		System.out.println("companyCode --- > " + companyCode);
-		System.out.println("new version  --- > " + newVersion);
+		//System.out.println("processJson --- > " + processJson);
+		//System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("new version  --- > " + newVersion);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
 		{
 			if("yes".equalsIgnoreCase(newVersion)) {
 				processJson = objWorkflowServiceImpl.createDSProcessVersion(companyCode,processJson);
-				System.out.println("processJson newversion --- > " + processJson);
+				//System.out.println("processJson newversion --- > " + processJson);
 			}
 			objWorkflowServiceImpl.saveDSProcess(companyCode,processJson);
 			objWorkflowServiceImpl.deployDSProcess(companyCode,processJson);
@@ -500,6 +582,7 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable save Process due to "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 	
@@ -508,7 +591,7 @@ public class WorkflowService {
 	 public ResponseDTO checkProcessId(HttpServletRequest request, HttpServletResponse 
 	 response, @PathVariable String companyCode, @PathVariable String processid) throws Exception
 	 {
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("companyCode --- > " + companyCode);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -523,6 +606,7 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable save Process due to "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 
@@ -530,9 +614,9 @@ public class WorkflowService {
 	 public ResponseDTO createMaster(HttpServletRequest request, HttpServletResponse 
 	 response,@RequestBody MasterSchemaDTO masterschema) throws Exception
 	 {
-		System.out.println("companyCode --- > " + masterschema.getCompanycode());
-		System.out.println("mastetrname --- > " + masterschema.getMastername());
-		System.out.println("metadata  --- > " + masterschema.getMetadata());
+		//System.out.println("companyCode --- > " + masterschema.getCompanycode());
+		//System.out.println("mastetrname --- > " + masterschema.getMastername());
+		//System.out.println("metadata  --- > " + masterschema.getMetadata());
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -547,6 +631,7 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable to create Master "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 	 
@@ -554,9 +639,9 @@ public class WorkflowService {
 	 public ResponseDTO editMaster(HttpServletRequest request, HttpServletResponse 
 	 response,@RequestBody MasterSchemaDTO masterschema) throws Exception
 	 {
-		System.out.println("companyCode --- > " + masterschema.getCompanycode());
-		System.out.println("mastetrname --- > " + masterschema.getMastername());
-		System.out.println("metadata  --- > " + masterschema.getMetadata());
+		//System.out.println("companyCode --- > " + masterschema.getCompanycode());
+		//System.out.println("mastetrname --- > " + masterschema.getMastername());
+		//System.out.println("metadata  --- > " + masterschema.getMetadata());
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -571,6 +656,7 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable to update Master "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 	 
@@ -578,7 +664,7 @@ public class WorkflowService {
 	 public ArrayList<String> getMasterList(HttpServletRequest request, HttpServletResponse 
 	 response,@PathVariable String companyCode) throws Exception
 	 {
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("companyCode --- > " + companyCode);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		try
 		{
@@ -589,6 +675,7 @@ public class WorkflowService {
 		{
 			ex.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return null;
 	 }
 	 
@@ -597,7 +684,7 @@ public class WorkflowService {
 	 response) throws Exception
 	 {
 		String companyCode = getCompanyCode(request);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("companyCode --- > " + companyCode);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		try
 		{
@@ -608,6 +695,7 @@ public class WorkflowService {
 		{
 			ex.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return null;
 	 }
 	 
@@ -615,7 +703,7 @@ public class WorkflowService {
 	 public String getMasterDetail(HttpServletRequest request, HttpServletResponse 
 	 response,@PathVariable String companyCode, @PathVariable String masterName) throws Exception
 	 {
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("companyCode --- > " + companyCode);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		try
 		{
@@ -627,17 +715,18 @@ public class WorkflowService {
 		{
 			ex.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return null;
 	 }
 	 
-	 @RequestMapping(value="/deletMaster/{masterName}", method = RequestMethod.GET , produces = MediaType.APPLICATION_JSON_VALUE)
+	 @RequestMapping(value="/deletMaster/{masterName}", method = RequestMethod.POST , produces = MediaType.APPLICATION_JSON_VALUE)
 	 public String deleteMaster(HttpServletRequest request, HttpServletResponse 
 	 response,@PathVariable String masterName) throws Exception
 	 {
 		
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		String companyCode = getCompanyCode(request);
-		System.out.println("companyCode --- > " + companyCode);
+		//System.out.println("companyCode --- > " + companyCode);
 		try
 		{
 			objWorkflowServiceImpl.deleteMaster(companyCode, masterName);
@@ -648,6 +737,7 @@ public class WorkflowService {
 		{
 			ex.printStackTrace();
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return "Delete Failure";
 	 }
 	 
@@ -655,9 +745,9 @@ public class WorkflowService {
 	 public ResponseDTO updateMasterData(HttpServletRequest request, HttpServletResponse 
 	 response,@PathVariable String action, @RequestBody MasterDataDTO masterdto) throws Exception
 	 {
-		System.out.println("companyCode --- > " + masterdto.getCompanycode());
-		System.out.println("mastetrname --- > " + masterdto.getMastername());
-		System.out.println("key  --- > " + masterdto.getKey());
+		//System.out.println("companyCode --- > " + masterdto.getCompanycode());
+		//System.out.println("mastetrname --- > " + masterdto.getMastername());
+		//System.out.println("key  --- > " + masterdto.getKey());
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -672,6 +762,7 @@ public class WorkflowService {
 			objResponseDTO.setResponseCode("ERROR");
 			objResponseDTO.setResponsMsg("Unable to update Master "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return objResponseDTO;
 	 }
 	 
@@ -680,9 +771,9 @@ public class WorkflowService {
 	 public ComputeDTO computeFields(HttpServletRequest request, HttpServletResponse 
 	 response,@PathVariable String companycode, @RequestBody ComputeDTO computedto) throws Exception
 	 {
-		System.out.println("companyCode --- > " + companycode);
-		System.out.println("processdata --- > " + computedto.getProcessdata());
-		System.out.println("getComputeFormulas --- > " + computedto.getComputeFormulas());
+		//System.out.println("companyCode --- > " + companycode);
+		//System.out.println("processdata --- > " + computedto.getProcessdata());
+		//System.out.println("getComputeFormulas --- > " + computedto.getComputeFormulas());
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		//ResponseDTO objResponseDTO=new ResponseDTO();
 		try
@@ -697,6 +788,7 @@ public class WorkflowService {
 			computedto.setResponseCode("ERROR");
 			computedto.setResponsMsg("Unable to update Master "+ex.getMessage());
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return computedto;
 	 }
 	 
@@ -704,9 +796,9 @@ public class WorkflowService {
 	 public ArrayList<String> getMasterDropDown(HttpServletRequest request, HttpServletResponse 
 	 response,@PathVariable String companycode, @PathVariable String mastername, @PathVariable String columnname) throws Exception
 	 {
-		System.out.println("companyCode --- > " + companycode);
-		System.out.println("mastername --- > " + mastername);
-		System.out.println("columnname --- > " + columnname);
+		//System.out.println("companyCode --- > " + companycode);
+		//System.out.println("mastername --- > " + mastername);
+		//System.out.println("columnname --- > " + columnname);
 		WorkflowServiceImpl objWorkflowServiceImpl=new WorkflowServiceImpl();	
 		//ResponseDTO objResponseDTO=new ResponseDTO();
 		ArrayList<String> list = new ArrayList<String>();
@@ -719,6 +811,7 @@ public class WorkflowService {
 			ex.printStackTrace();
 			
 		}
+		System.out.println(request.getAttribute("request_uri") + " ended , time taken " + (System.currentTimeMillis() - (long) request.getAttribute("start_time")) + " milliseconds");
 		return list;
 	 }
 	 

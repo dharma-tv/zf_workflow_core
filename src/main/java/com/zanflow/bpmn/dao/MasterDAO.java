@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Query;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ public class MasterDAO extends JPATransaction{
 
 	public MasterDAO(String pJunitName)throws ApplicationException
 	{
-		System.out.println("#ProcessDAO#pJunitName#"+pJunitName);
+		//System.out.println("#ProcessDAO#pJunitName#"+pJunitName);
 		try {
             if(pJunitName != null && pJunitName.trim().length() > 0){
            	 strJPUnitName = pJunitName;
@@ -30,7 +31,7 @@ public class MasterDAO extends JPATransaction{
             else {
            	 throw new ApplicationException("Arguments are NULL, Unable to create JPersistenceProvider.");
             }
-            System.out.println("#pJunitName#"+strJPUnitName);
+            //System.out.println("#pJunitName#"+strJPUnitName);
        	 	objJProvider = new JPersistenceProvider(strJPUnitName);
 		} catch (ApplicationException e) {
 			e.printStackTrace();
@@ -52,7 +53,7 @@ public class MasterDAO extends JPATransaction{
 			{
 				this.objJProvider = objJProvider;
 				strJPUnitName = objJProvider.getpUnitName();
-				System.out.println("# ProcessDAO objJProvider constructor invoked");
+				//System.out.println("# ProcessDAO objJProvider constructor invoked");
 			}else{
 				throw new ApplicationException("ProcessDAO : JPersistenceProvider is null");
 			}
@@ -98,7 +99,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#createMaster#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#createMaster#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return message;
 	}
@@ -130,7 +131,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#updateMaster#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#updateMaster#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return message;
 	
@@ -144,7 +145,7 @@ public class MasterDAO extends JPATransaction{
 		List obj=null;
 		try {
 			 obj=  objJProvider.createNativeQuery("select mastername from {h-schema}zf_mstr_metadata where companycode=:companyCode").setParameter("companyCode", companyCode).getResultList();
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			for(int i=0 ; i < obj.size() ; i++) {
 				masters.add(obj.get(i).toString());
 			}
@@ -156,7 +157,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#getMasterList#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#getMasterList#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return masters;
 	
@@ -170,7 +171,7 @@ public class MasterDAO extends JPATransaction{
 	    List<Object[]> obj=null;
 		try {
 			 obj=  objJProvider.createNativeQuery("select mastername, CAST(metadata as TEXT) from {h-schema}zf_mstr_metadata where companycode=:companyCode").setParameter("companyCode", companyCode).getResultList();
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			for(int i=0 ; i < obj.size() ; i++) {
 				masters.put(String.valueOf(obj.get(i)[0]),String.valueOf(obj.get(i)[1]));
 			}
@@ -182,7 +183,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#getMasterMetaData#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#getMasterMetaData#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return masters;
 	
@@ -197,7 +198,7 @@ public class MasterDAO extends JPATransaction{
 		List dataobj = null;
 		try {
 			 obj=  objJProvider.createNativeQuery("select CAST(metadata as TEXT) from {h-schema}zf_mstr_metadata where companycode=:companyCode and mastername=:mastername").setParameter("companyCode", companyCode).setParameter("mastername", mastername).getResultList();
-			System.out.println("obj "+obj);
+			//System.out.println("obj "+obj);
 			if(obj.size()>0) {
 				JSONArray metadata = new JSONArray(obj.get(0).toString());
 				masters.put("metadata", metadata);
@@ -218,7 +219,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return masters;
 	
@@ -238,7 +239,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return true;
 	
@@ -265,7 +266,7 @@ public class MasterDAO extends JPATransaction{
 		}
 		finally
 		{
-			System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		return rowData;
 	    
@@ -278,7 +279,7 @@ public class MasterDAO extends JPATransaction{
 			int count=0;
 		    String message="Master created successfully";
 		    
-		    System.out.println("update master data --> " + action);
+		    //System.out.println("update master data --> " + action);
 			try {
 //				objJProvider.begin();
 				if("UPDATE".equalsIgnoreCase(action) || "INSERT".equalsIgnoreCase(action)) {
@@ -298,7 +299,7 @@ public class MasterDAO extends JPATransaction{
 				}
 				
 				if("INSERT".equalsIgnoreCase(action)) {
-				  System.out.println("update master data inside insert --> " + action);
+				  //System.out.println("update master data inside insert --> " + action);
 				  count =  objJProvider.createNativeQuery("insert into {h-schema}zf_mstr_data (companycode, mastername, key, value) values (:1,:2,:3,:4)")
 						 .setParameter("1", masterdto.getCompanycode())
 						 .setParameter("2", masterdto.getMastername())
@@ -330,7 +331,7 @@ public class MasterDAO extends JPATransaction{
 			}
 			finally
 			{
-				System.out.println("#MasterDAO#createMaster#End#TT#"+ (System.currentTimeMillis() - t1));
+				//System.out.println("#MasterDAO#createMaster#End#TT#"+ (System.currentTimeMillis() - t1));
 			}
 			return message;
 	}
@@ -354,7 +355,7 @@ public class MasterDAO extends JPATransaction{
 			}
 			finally
 			{
-				System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
+				//System.out.println("#MasterDAO#getMasterDetail#End#TT#"+ (System.currentTimeMillis() - t1));
 			}
 			return rowData;
 	 }
@@ -366,7 +367,7 @@ public class MasterDAO extends JPATransaction{
 			List obj=null;
 			try {
 				obj=  objJProvider.createNativeQuery("select distinct value ->> '"+columnname+"' from {h-schema}zf_mstr_data where companycode=:companycode and mastername=:mastername").setParameter("companycode", companyCode).setParameter("mastername", mastername).getResultList();
-				System.out.println("obj "+obj);
+				//System.out.println("obj "+obj);
 				for(int i=0 ; i < obj.size() ; i++) {
 					masters.add(obj.get(i).toString());
 				}
@@ -378,10 +379,61 @@ public class MasterDAO extends JPATransaction{
 			}
 			finally
 			{
-				System.out.println("#MasterDAO#getMasterDropDown#End#TT#"+ (System.currentTimeMillis() - t1));
+				//System.out.println("#MasterDAO#getMasterDropDown#End#TT#"+ (System.currentTimeMillis() - t1));
 			}
 			return masters;
 	}
+	 
+	 public String getSearchValue(String companyCode, String mastername, String columnname, String searchColumn, String searchValue) throws ApplicationException {
+			
+		 long t1 = System.currentTimeMillis();
+		    List obj=null;
+			try {
+				obj=  objJProvider.createNativeQuery("select distinct value ->> '"+columnname+"' from {h-schema}zf_mstr_data where companycode=:companycode and mastername=:mastername and value ->> '"+searchColumn+"'=:searchValue ").setParameter("companycode", companyCode).setParameter("mastername", mastername).setParameter("searchValue", searchValue).getResultList();
+				//System.out.println("obj "+obj);
+				for(int i=0 ; i < obj.size() ; i++) {
+					return obj.get(i).toString();
+				}
+			}	
+			catch (Exception e) {
+				e.printStackTrace();
+				//log.printErrorMessage(e);
+				throw new ApplicationException(new Exception(e));
+			}
+			finally
+			{
+				//System.out.println("#MasterDAO#getMasterDropDown#End#TT#"+ (System.currentTimeMillis() - t1));
+			}
+			return "";
+	}
+	 
+	 public ArrayList<String> getAllUsers(String companyCode)throws ApplicationException
+		{
+			long t1 = System.currentTimeMillis();
+			//System.out.println("#UserMgmtDAO#getAllUsers#"+companyCode);
+			ArrayList<String> userList = new ArrayList<String>();
+			List obj=null;
+			try
+			{
+				Query objQuery=objJProvider.createNativeQuery("select userid from {h-schema}zf_id_user  where companycode=:companyCode");
+				objQuery.setParameter("companyCode", companyCode);
+				obj=objQuery.getResultList();
+				for(int i=0 ; i < obj.size() ; i++) {
+					userList.add(obj.get(i).toString());
+				}
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+				//log.printErrorMessage(ex);
+				throw new ApplicationException(ex);
+			}
+			finally
+			{
+				//System.out.println("#UserMgmtDAO#getAllUsers#End#TT#" + (System.currentTimeMillis() - t1));
+			}
+			return userList;
+		  }
 	
 
 }

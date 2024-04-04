@@ -66,10 +66,10 @@ public class ParallelGateWayElement extends BasicElement
 		{
 			for(String inFlowId:inComingSeqList)
 			{
-				System.out.println("objSequenceFlowID#"+inFlowId);
+				//System.out.println("objSequenceFlowID#"+inFlowId);
 //				SequenceFlow objSequenceFlow=getObjBpmnModelInstance().getModelElementById(inFlowId);
-//				System.out.println("objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
-//				System.out.println("objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
+//				//System.out.println("objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
+//				//System.out.println("objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
 //				if(objSequenceFlow.getSource()!=null && objSequenceFlow.getSource().getId()!=null)
 //				{
 					isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  inFlowId,taskList);
@@ -103,7 +103,7 @@ public class ParallelGateWayElement extends BasicElement
 //				if(objSequenceFlow.getConditionExpression()!=null)
 //				{					
 //					String conditionExpression = objSequenceFlow.getConditionExpression().getTextContent();
-//					System.out.println("conditionExpression ---> " + conditionExpression);
+//					//System.out.println("conditionExpression ---> " + conditionExpression);
 //					try 
 //					{
 //						boolean result = FlowConditionValidator.validateCondition(objBPMNData.getDataMap(), conditionExpression);
@@ -121,7 +121,7 @@ public class ParallelGateWayElement extends BasicElement
 //				{
 					if(objSequenceFlow.getTarget()!=null && objSequenceFlow.getTarget().getId()!=null)
 					{
-						System.out.println("parallel gatewayToken#"+outFlowId+"#"+gateWayToken);
+						//System.out.println("parallel gatewayToken#"+outFlowId+"#"+gateWayToken);
 						createTask(objBPMNData,outFlowId,gateWayToken,"Flow",2);
 						nextSteps.add(objSequenceFlow.getTarget().getId());
 					}

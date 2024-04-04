@@ -49,7 +49,7 @@ private static AppProperties instance;
     }
     
     public String getPropery(String key) {
-    	System.out.println("key#"+key+"#value#"+prop.getProperty(key));
+    	//System.out.println("key#"+key+"#value#"+prop.getProperty(key));
     	return prop.getProperty(key);
     }
 

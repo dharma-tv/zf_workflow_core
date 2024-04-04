@@ -32,7 +32,7 @@ public class MasterDataUpdater
 	public String updateMasterData(String masterTableName,Map<String,Object>dataMap)
 	{
 		String result="Master Data updated succcessfully";
-		System.out.println("updateMasterData#"+companyCode+"#"+masterTableName+"#"+dataMap);
+		//System.out.println("updateMasterData#"+companyCode+"#"+masterTableName+"#"+dataMap);
 		MasterDAO objMasterDAO=null;
 		try
 		{
@@ -84,7 +84,7 @@ public class MasterDataUpdater
 							objMasterDataDTO.setOldkey(primaryKeyValue);
 						}
 						objMasterDataDTO.setValue(mapperObj.writeValueAsString(dataMap));
-						System.out.println("objMasterDataDTO.getValue()#"+objMasterDataDTO.getValue());
+						//System.out.println("objMasterDataDTO.getValue()#"+objMasterDataDTO.getValue());
 						objMasterDAO.begin();
 						objMasterDAO.updateMasterData("UPDATE", objMasterDataDTO);
 						objMasterDAO.commit();
@@ -124,7 +124,7 @@ public class MasterDataUpdater
 	{
 		String result="Master Data deleted succcessfully";
 		MasterDAO objMasterDAO=null;
-		System.out.println("deleteMasterData#"+companyCode+"#"+masterTableName+"#"+dataMap);
+		//System.out.println("deleteMasterData#"+companyCode+"#"+masterTableName+"#"+dataMap);
 		try
 		{
 			objMasterDAO=new MasterDAO(Constants.DB_PUNIT);
@@ -168,7 +168,7 @@ public class MasterDataUpdater
 							objMasterDataDTO.setOldkey(primaryKeyValue);
 						}
 						objMasterDataDTO.setValue(mapperObj.writeValueAsString(dataMap));
-						System.out.println("objMasterDataDTO.getValue()#"+objMasterDataDTO.getValue());
+						//System.out.println("objMasterDataDTO.getValue()#"+objMasterDataDTO.getValue());
 						objMasterDAO.begin();
 						objMasterDAO.updateMasterData("DELETE", objMasterDataDTO);
 						objMasterDAO.commit();
@@ -208,7 +208,7 @@ public class MasterDataUpdater
 	{
 		String result="Master Data inserted succcessfully";
 		MasterDAO objMasterDAO=null;
-		System.out.println("updateMasterData#"+companyCode+"#"+masterTableName+"#"+dataMap);
+		//System.out.println("updateMasterData#"+companyCode+"#"+masterTableName+"#"+dataMap);
 		try
 		{
 			objMasterDAO=new MasterDAO(Constants.DB_PUNIT);
@@ -265,7 +265,7 @@ public class MasterDataUpdater
 							objMasterDataDTO.setOldkey(primaryKeyValue);
 						}
 						objMasterDataDTO.setValue(mapperObj.writeValueAsString(dataMap));
-						System.out.println("objMasterDataDTO.getValue()#"+objMasterDataDTO.getValue());
+						//System.out.println("objMasterDataDTO.getValue()#"+objMasterDataDTO.getValue());
 						objMasterDAO.begin();
 						objMasterDAO.updateMasterData("INSERT", objMasterDataDTO);
 						objMasterDAO.commit();
@@ -417,7 +417,7 @@ public class MasterDataUpdater
 		+"\n"+"zf.result=masterObj.updateMasterData('empleavemaster',rowData);";
 		
 	
-		System.out.println("##########################");
+		//System.out.println("##########################");
 		
 		
 		GroovyShell shell = new GroovyShell(objBinding);
@@ -430,11 +430,11 @@ public class MasterDataUpdater
 		
 //		shell.parse(insertScript).run();
 		
-//		System.out.println("RESULT#####"+objBinding.getVariable("result"));
+//		//System.out.println("RESULT#####"+objBinding.getVariable("result"));
 		
 		dataMap=(Map<String, Object>) objBinding.getVariable("zf");
 		
-		System.out.println("RESULT#####"+dataMap);
-		System.out.println(leaveRequestScript);
+		//System.out.println("RESULT#####"+dataMap);
+		//System.out.println(leaveRequestScript);
 	}
 }

@@ -13,6 +13,7 @@ import org.camunda.bpm.model.xml.instance.DomElement;
 
 import com.zanflow.bpmn.BPMNData;
 import com.zanflow.bpmn.model.BPMNTask;
+import com.zanflow.bpmn.util.BPMNUtil;
 import com.zanflow.bpmn.util.FlowConditionValidator;
 import com.zanflow.bpmn.util.MasterDataUpdater;
 
@@ -48,7 +49,7 @@ public class ScriptTaskElement extends BasicElement
 				if(objSequenceFlow.getConditionExpression()!=null)
 				{					
 					String conditionExpression = objSequenceFlow.getConditionExpression().getTextContent();
-					System.out.println("conditionExpression ---> " + conditionExpression);
+					//System.out.println("conditionExpression ---> " + conditionExpression);
 					try 
 					{
 						boolean result = FlowConditionValidator.validateCondition(objBPMNData.getDataMap(), conditionExpression);
@@ -82,7 +83,7 @@ public class ScriptTaskElement extends BasicElement
 		try
 		{
 			Binding objBinding = new Binding();
-			System.out.println("objBPMNData.getDataMap()#"+objBPMNData.getDataMap());
+			//System.out.println("objBPMNData.getDataMap()#"+objBPMNData.getDataMap());
 			if(objBPMNData.getDataMap()!=null && objBPMNData.getDataMap().size()>0)
 			{
 //				Set<String> keySet=new HashSet<String>();
@@ -96,8 +97,11 @@ public class ScriptTaskElement extends BasicElement
 //					}
 //				}
 				objBinding.setVariable("zf", objBPMNData.getDataMap());
-				objBinding.setVariable("masterObj", new MasterDataUpdater(objBPMNData.getCompanyCode()));
+				objBinding.setVariable("taskId", objBPMNData.getBpmnTask().getBpmnTaskId());
+				objBinding.setVariable("txRefNo", objBPMNData.getBpmnTask().getBpmnTxRefNo());
 				
+				objBinding.setVariable("masterObj", new MasterDataUpdater(objBPMNData.getCompanyCode()));
+				objBinding.setVariable("BPMNEngine", new BPMNUtil(objBPMNData.getCompanyCode()));
 				GroovyShell shell = new GroovyShell(objBinding);
 				String script=null;
 				for(DomElement objDomElement:getObjElementModelInstance().getDomElement().getChildElements())
@@ -108,7 +112,7 @@ public class ScriptTaskElement extends BasicElement
 						break;
 					}
 				}
-				System.out.println("script----->>>"+script);
+				//System.out.println("script----->>>"+script);
 				if(script!=null)
 				{
 					shell.parse(script).run();
@@ -123,7 +127,7 @@ public class ScriptTaskElement extends BasicElement
 //					}
 				}
 			}
-			System.out.println("objBPMNData.getDataMap()#"+objBPMNData.getDataMap());
+			//System.out.println("objBPMNData.getDataMap()#"+objBPMNData.getDataMap());
 		}
 		catch(Exception ex)
 		{

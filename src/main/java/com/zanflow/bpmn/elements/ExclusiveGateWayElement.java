@@ -92,15 +92,15 @@ public class ExclusiveGateWayElement extends BasicElement{
 				if(count>0)
 				for(String inFlowId:inComingSeqList)
 				{
-//					System.out.println("#ExclusiveGateWayElement#"+objBPMNData.getBpmnTask().getBpmnTaskId()+"#"+objBPMNData.getBpmnTask().getElementId()+"#"+objBPMNData.getBpmnTask().getGateWayToken());
+//					//System.out.println("#ExclusiveGateWayElement#"+objBPMNData.getBpmnTask().getBpmnTaskId()+"#"+objBPMNData.getBpmnTask().getElementId()+"#"+objBPMNData.getBpmnTask().getGateWayToken());
 //					SequenceFlow objSequenceFlow=getObjBpmnModelInstance().getModelElementById(inFlowId);
-//					System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
-//					System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
+//					//System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
+//					//System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
 //					isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  objSequenceFlow.getSource().getId(),taskList);
-//					System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId()+"#flag#"+isIncomingTaskCompleted);
-					System.out.println("#ExclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
+//					//System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId()+"#flag#"+isIncomingTaskCompleted);
+					//System.out.println("#ExclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
 					isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  inFlowId,taskList);
-					System.out.println("ExclusiveGateWayElement#objSequenceFlowID#"+inFlowId+"#flag#"+isIncomingTaskCompleted);
+					//System.out.println("ExclusiveGateWayElement#objSequenceFlowID#"+inFlowId+"#flag#"+isIncomingTaskCompleted);
 					if(isIncomingTaskCompleted)
 					{
 						actCount++;
@@ -111,17 +111,17 @@ public class ExclusiveGateWayElement extends BasicElement{
 					}
 				}
 				isIncomingTaskCompleted=(count>0 && count==actCount);
-				System.out.println("#ExclusiveGateWayElement#count#"+count+"#actCount#"+actCount+"#flag#"+isIncomingTaskCompleted);
+				//System.out.println("#ExclusiveGateWayElement#count#"+count+"#actCount#"+actCount+"#flag#"+isIncomingTaskCompleted);
 			}
 			else
 			{
 				for(String inFlowId:inComingSeqList)
 				{
-					System.out.println("#ExclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
+					//System.out.println("#ExclusiveGateWayElement#objSequenceFlowID#"+inFlowId);
 					isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  inFlowId,taskList);
 //					SequenceFlow objSequenceFlow=getObjBpmnModelInstance().getModelElementById(inFlowId);
-//					System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
-//					System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
+//					//System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource()#"+objSequenceFlow.getSource());
+//					//System.out.println("ExclusiveGateWayElement#objSequenceFlow.getSource().getId()#"+objSequenceFlow.getSource().getId());
 //					if(objSequenceFlow.getSource()!=null && objSequenceFlow.getSource().getId()!=null)
 //					{
 //						isIncomingTaskCompleted=checkTaskStatus(objBPMNData,  objSequenceFlow.getSource().getId(),taskList);
@@ -152,7 +152,7 @@ public class ExclusiveGateWayElement extends BasicElement{
 				if(objSequenceFlow.getConditionExpression()!=null)
 				{					
 					String conditionExpression = objSequenceFlow.getConditionExpression().getTextContent();
-					System.out.println("conditionExpression ---> " + conditionExpression);
+					//System.out.println("conditionExpression ---> " + conditionExpression);
 					try 
 					{
 					   boolean result = FlowConditionValidator.validateCondition(objBPMNData.getDataMap(), conditionExpression);

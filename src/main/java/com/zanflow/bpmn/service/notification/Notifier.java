@@ -13,10 +13,8 @@ import javax.mail.internet.MimeMessage;
 
 public class Notifier 
 {
-	 //final String username = "support@shopperslike.com";
-     //final String password = "shopperslike@123";
      
-     final String username = "support@zanflow.com";
+	 final String username = "notification-no-reply@zanflow.com";
      final String password = "Nocode2020#";
      Properties prop = new Properties();
      private static Notifier objNotifier=null;
@@ -67,7 +65,8 @@ public class Notifier
          try 
          {
              Message message = new MimeMessage(session);
-             message.setFrom(new InternetAddress("support@zanflow.com", "zanflow Notifications"));
+             message.setFrom(new InternetAddress(username, "zanflow Notifications"));
+             //message.setFrom(new InternetAddress("support@zanflow.com", "zanflow Notifications"));
              message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(toEmail));
              if(ccEmail!=null && ccEmail.length()>0)
              {
@@ -79,7 +78,7 @@ public class Notifier
 
              Transport.send(message);
 
-             System.out.println(" Mail sent Done");
+             //System.out.println(" Mail sent Done");
  
 
          } catch (MessagingException e) {

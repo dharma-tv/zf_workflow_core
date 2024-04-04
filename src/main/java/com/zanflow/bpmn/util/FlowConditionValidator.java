@@ -31,7 +31,7 @@ public class FlowConditionValidator
 //				Pattern p=Pattern.compile("#"+"(.*?)"+"#");
 //				Matcher m = p.matcher(condition);
 //				 while (m.find()) {
-//					 System.out.println(m.group(1));
+//					 //System.out.println(m.group(1));
 //					 keys.add(m.group(1));
 //				 }
 //				 condition=condition.replaceAll("#", "");
@@ -72,13 +72,13 @@ public class FlowConditionValidator
 //				for(Object key:keys)
 //				{
 //					Object value=dataMap.get(key);
-//					System.out.println(key + " ------------- " + value);
+//					//System.out.println(key + " ------------- " + value);
 //					if(value!=null && value instanceof String)
 //					{
 //						condition = condition.replaceAll(("zf."+key),("'"+value.toString()+"'"));
 //					}
 //				}
-//				System.out.println("condition---------------"+condition);
+//				//System.out.println("condition---------------"+condition);
 				Bindings scope=engine.createBindings();
 				scope.put("zf", dataMap);
 				
@@ -88,8 +88,8 @@ public class FlowConditionValidator
 					flag= value.booleanValue();
 				}	
 				JSONObject obj = new JSONObject(dataMap);
-				System.out.println("flowdata -----------> " +obj.toString());
-				System.out.println("flow result -----------> " +flag);
+				//System.out.println("flowdata -----------> " +obj.toString());
+				//System.out.println("flow result -----------> " +flag);
 			}
 		}
 		catch(Exception ex)

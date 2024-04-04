@@ -3,10 +3,12 @@ package com.zanflow.bpmn.service.impl;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -42,9 +44,13 @@ import com.zanflow.bpmn.model.BPMNProcessInfo;
 import com.zanflow.bpmn.model.BPMNTask;
 import com.zanflow.bpmn.model.TXNDocments;
 import com.zanflow.bpmn.service.notification.NotificationHelper;
+import com.zanflow.bpmn.util.screen.FunctionsUtil;
 import com.zanflow.bpmn.util.screen.MasterHelper;
-import com.zanflow.cms.serv.AWSS3ServiceImpl;
+import com.zanflow.cms.serv.GoogleCloudStorageServiceImpl;
+import com.zanflow.cms.serv.StorageService;
 import com.zanflow.common.db.Constants;
+import com.zanflow.sec.dao.UserMgmtDAO;
+import com.zanflow.sec.model.User;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -72,7 +78,7 @@ public class WorkflowServiceImpl
 			objBPMNData.setpUnitName(Constants.DB_PUNIT); 
 			objBPMNData.setCompanyCode(objTaskDTO.getCompanyCode());
 			JSONObject formData = new JSONObject(objTaskDTO.getFormData());
-			System.out.println("processdata -----------> " +formData.get("processdata").toString());
+			//System.out.println("processdata -----------> " +formData.get("processdata").toString());
 			Map<String, Object> datamap =mapper.readValue(formData.get("processdata").toString(), Map.class);
 			objBPMNData.setDataMap(datamap);
 			objBPMNData.setStepName(objTaskDTO.getTaskName());
@@ -82,8 +88,8 @@ public class WorkflowServiceImpl
 			//ObjectMapper mapper = new ObjectMapper();
 			//String strData=mapper.writeValueAsString(objBPMNCompleterResultDTO.getDataMap());
 			JSONObject obj = new JSONObject(objBPMNCompleterResultDTO.getDataMap());
-			System.out.println("processdata 333 -----------> " +objBPMNCompleterResultDTO.getDataMap().keySet());
-			System.out.println("processdata 2222 -----------> " +obj.toString());
+			//System.out.println("processdata 333 -----------> " +objBPMNCompleterResultDTO.getDataMap().keySet());
+			//System.out.println("processdata 2222 -----------> " +obj.toString());
 			objBPMNProcessInfo.setProcessdata(obj.toString());
 			objBPMNTaskDAO.begin();
 			
@@ -108,7 +114,7 @@ public class WorkflowServiceImpl
 					docIds.add(String.valueOf(objTXNDocumentDTO.getDocumentId()));
 				}
 				int updateCount=objBPMNTaskDAO.updateDocuments(objBPMNCompleterResultDTO.getBpmnTxRefNo(), docIds);
-				System.out.println("no of documents update -----------> " +updateCount);
+				//System.out.println("no of documents update -----------> " +updateCount);
 			}
 			
 			objTaskDTO.setRefId(objBPMNCompleterResultDTO.getBpmnTxRefNo());
@@ -124,10 +130,10 @@ public class WorkflowServiceImpl
 			objBPMNTaskDAO.commit();
 			
 			NotificationHelper objNotificationHelper=new NotificationHelper();
-			System.out.println("Notification helpper current step");
-			objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objTaskDTO.getBpmnId(), objTaskDTO.getTaskName(), "Complete", datamap,null,objTaskDTO.getCompanyCode());
-			System.out.println("Notification helpper next step ");
-			objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objBPMNCompleterResultDTO.getBpmnNextSteps(), "Create", datamap,objTaskDTO.getBpmnId(),objTaskDTO.getCompanyCode(),objTaskDTO.getBpmnId());
+			//System.out.println("Notification helpper current step");
+			objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objTaskDTO.getBpmnId(), objTaskDTO.getTaskName(), "Complete", datamap,null,objTaskDTO.getCompanyCode(), objTaskDTO.getProcessName());
+			//System.out.println("Notification helpper next step ");
+			objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objBPMNCompleterResultDTO.getBpmnNextSteps(), "Create", datamap,objTaskDTO.getBpmnId(),objTaskDTO.getCompanyCode(),objTaskDTO.getBpmnId() , objTaskDTO.getProcessName());
 	
 		}
 		catch(Exception ex)
@@ -166,13 +172,15 @@ public class WorkflowServiceImpl
 			objBPMNData.setDataMap(datamap);
 			objBPMNData.setStepName(objTaskDTO.getTaskName());
 			objBPMNData.setCompletedBy(objTaskDTO.getCompletedBy());
+			
 			objBPMNCompleterResultDTO=objBPMNEngine.completeTask(objBPMNData);
 			objBPMNTaskDAO=new BPMNTaskDAO(Constants.DB_PUNIT);
+			
 			BPMNProcessInfo objBPMNProcessInfo=objBPMNTaskDAO.findBPMNProcessInfo(objBPMNCompleterResultDTO.getBpmnTxRefNo());
 			//String strData=mapper.writeValueAsString(objBPMNCompleterResultDTO.getDataMap());
 			JSONObject obj = new JSONObject(objBPMNCompleterResultDTO.getDataMap());
-			System.out.println("processdata 333 -----------> " +objBPMNCompleterResultDTO.getDataMap().keySet());
-			System.out.println("processdata 2222 -----------> " +obj.toString());
+			//System.out.println("processdata 333 -----------> " +objBPMNCompleterResultDTO.getDataMap().keySet());
+			//System.out.println("processdata 2222 -----------> " +obj.toString());
 			objBPMNProcessInfo.setProcessdata(obj.toString());
 			
 			objBPMNTaskDAO.begin();
@@ -194,11 +202,12 @@ public class WorkflowServiceImpl
 			objBPMNTaskDAO.updateBPMNProcessInfo(objBPMNProcessInfo);
 			
 			objBPMNTaskDAO.commit();
-			//NotificationHelper objNotificationHelper=new NotificationHelper();
-			System.out.println("Notification helpper current step");
-			//objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objTaskDTO.getBpmnId(), objTaskDTO.getTaskName(), "Complete", datamap,null,objTaskDTO.getCompanyCode());
-			System.out.println("Notification helpper next step ");
-			//objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objBPMNCompleterResultDTO.getBpmnNextSteps(), "Create", datamap,null,objTaskDTO.getCompanyCode(),objTaskDTO.getBpmnId());
+			objBPMNTaskDAO.callSubscriptions(objTaskDTO.getCompanyCode(), objTaskDTO.getBpmnId(),objTaskDTO.getTaskName(), obj.toString());
+			NotificationHelper objNotificationHelper=new NotificationHelper();
+			//System.out.println("Notification helpper current step");
+			objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objTaskDTO.getBpmnId(), objTaskDTO.getTaskName(), "Complete", datamap,null,objTaskDTO.getCompanyCode(), objTaskDTO.getProcessName());
+			//System.out.println("Notification helpper next step ");
+			objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objBPMNCompleterResultDTO.getBpmnNextSteps(), "Create", datamap,null,objTaskDTO.getCompanyCode(),objTaskDTO.getBpmnId(), objTaskDTO.getProcessName());
 		}
 		catch(Exception ex)
 		{
@@ -296,7 +305,7 @@ public class WorkflowServiceImpl
 			/**Clean all Comments of this task and then Save all new comments of this task.*/
 			int commnetCleanCnt = objBPMNTaskDAO.removeComments(objTaskDTO.getRefId(), objTaskDTO.getTaskId());
 			int commentCount=0;
-			System.out.println("CleanComments#cnt#"+commnetCleanCnt);
+			//System.out.println("CleanComments#cnt#"+commnetCleanCnt);
 			for (CommentsDTO commentsDTO : objTaskDTO.getComments()) {
 				if(objTaskDTO.getTaskId()==commentsDTO.getTaskId()) {
 					commentCount++;
@@ -306,7 +315,7 @@ public class WorkflowServiceImpl
 					objBPMNTaskDAO.getObjJProvider().save(comments);
 				}
 			}
-			System.out.println("CleanComments#cnt#"+commnetCleanCnt+"#"+commentCount);
+			//System.out.println("CleanComments#cnt#"+commnetCleanCnt+"#"+commentCount);
 		}catch (ApplicationException e) {
 			throw e;
 		}finally {
@@ -315,17 +324,20 @@ public class WorkflowServiceImpl
 	}
 	public TaskDTO getLaunchTaskStep(String bpmnId, String userId, String companycode) throws Exception{
 		BPMNTaskDAO objBPMNTaskDAO = null;
+		UserMgmtDAO objUserMgmtDAO = null;
 		JSONObject json = null;
 		TaskDTO dto = new TaskDTO();
 		try {
 			objBPMNTaskDAO = new BPMNTaskDAO(Constants.DB_PUNIT);
+			
 			json=objBPMNTaskDAO.findStepDetails(bpmnId, companycode);
 			LinkedHashMap<String,String> computeFieldMap=new LinkedHashMap<String,String>();
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			String companyCode=json.getString("companyCode");
-			System.out.println("companyCode#"+companyCode);
+			//System.out.println("companyCode#"+companyCode);
 			json.remove("companyCode");
 			dto.setTaskName(json.getJSONObject("step").getJSONObject("stepDefinition").getString("NAME"));
+			dto.setStepLabel(json.getJSONObject("step").getJSONObject("stepDefinition").getString("LABEL"));
 			//JSONArray fieldArr=json.getJSONArray("fields");
 			
 			JSONObject jsonschemaobj = json.getJSONObject("jsonschema");
@@ -337,9 +349,23 @@ public class WorkflowServiceImpl
 			    	JSONObject fieldJSON= jsonschemaobj.getJSONObject(key);
 					String fieldName=fieldJSON.getString("NAME");
 					String defaultValue=fieldJSON.getString("DEFAULTVALUE");
-					System.out.println("fieldName#"+fieldName+"#defaultValue#"+defaultValue);
-					if(defaultValue!=null && defaultValue.equalsIgnoreCase("=CURRENTUSER()")) {
+					//System.out.println("fieldName#"+fieldName+"#defaultValue#"+defaultValue);
+					if(defaultValue!=null && (defaultValue.equalsIgnoreCase("=CURRENTUSER()") || defaultValue.equalsIgnoreCase("=INITIATOR()"))) {
 						dataMap.put(fieldName, userId);
+					}else if (defaultValue!=null && defaultValue.equalsIgnoreCase("=INITIATOR_MANAGER()")) {
+						try {
+						objUserMgmtDAO=new UserMgmtDAO(Constants.DB_PUNIT);
+						User user = objUserMgmtDAO.findUser(userId);
+						System.out.println("INITIATOR_MANAGER#"+fieldName+"#value#"+user.getManagerId());
+						if(user !=null) {
+							dataMap.put(fieldName, user.getManagerId());
+						}
+						}finally {
+							if(objUserMgmtDAO!=null)
+							{
+								objUserMgmtDAO.close(Constants.DB_PUNIT);
+							}
+						}
 					}else if(defaultValue!=null)
 					{
 						dataMap.put(fieldName, defaultValue);
@@ -347,7 +373,9 @@ public class WorkflowServiceImpl
 					if(!fieldJSON.isNull("COMPUTEFORMULA"))
 					{
 						String computeFormula=fieldJSON.getString("COMPUTEFORMULA");
-						computeFieldMap.put(fieldName, computeFormula);
+						if(computeFormula !=null && computeFormula!="") {
+						   computeFieldMap.put(fieldName, computeFormula);
+						}
 					}
 			    }
 			}
@@ -356,9 +384,11 @@ public class WorkflowServiceImpl
 				
 				if(computeFieldMap.size()>0)
 				{
+					try {
 					Binding objBinding = new Binding();
 					objBinding.setVariable("zf", dataMap);
 					objBinding.setVariable("master", new MasterHelper(companyCode));
+					objBinding.setVariable("fn", new FunctionsUtil(companyCode));
 					GroovyShell shell = new GroovyShell(objBinding);
 					
 					ScriptEngineManager manager = new ScriptEngineManager();
@@ -366,21 +396,51 @@ public class WorkflowServiceImpl
 					Bindings scope = engine.createBindings();
 					scope.put("zf", dataMap);
 					
-					for(String fieldName:computeFieldMap.keySet())
-					{
-						String formula=computeFieldMap.get(fieldName);
-						System.out.println("fieldName#"+fieldName+"#formula#"+formula);
-						String computedValue = "";
-						if(formula.startsWith("eval(")) {
-						   computedValue = String.valueOf(engine.eval(formula, scope));
-						}else{
-					       computedValue = (String) shell.evaluate(formula);
+					Set<String> fieldNames = computeFieldMap.keySet();
+					Set<String> remainingFieldNames = new HashSet<String>();
+					int k=0;
+					do {
+						if(remainingFieldNames.size()>0) {
+							fieldNames = remainingFieldNames;
+							remainingFieldNames = new HashSet<String>();
 						}
-						System.out.println("fieldName#"+fieldName+"#formula#"+formula+"#computedValue#"+computedValue);
-						dataMap.put(fieldName, computedValue);
+						int i = 0;
+						k++;
+						for(String fieldName:fieldNames)
+						{
+							
+							boolean skip=false;
+							String[] tmpFieldNames = fieldNames.toArray(new String[0]);
+							String formula=computeFieldMap.get(fieldName);
+							for(int j=i+1;j<tmpFieldNames.length;j++)
+							{ 
+								if(formula.contains("zf."+tmpFieldNames[j])) {
+									skip = true;
+									remainingFieldNames.add(fieldName);
+									//System.out.println("skippedfieldName#"+fieldName+"#formula#"+formula);
+									break;
+								}
+							}
+							i++;
+							if(!skip){
+							//System.out.println("fieldName#"+fieldName+"#formula#"+formula);
+							String computedValue = "";
+							if(formula.startsWith("eval(")) {
+							   computedValue = String.valueOf(engine.eval(formula, scope));
+							}else{
+						       computedValue = (String) shell.evaluate(formula);
+							}
+							//System.out.println("fieldName#"+fieldName+"#formula#"+formula+"#computedValue#"+computedValue);
+							dataMap.put(fieldName, computedValue);
+							}
+						}
+					}while(remainingFieldNames.size()>0 && k<computeFieldMap.keySet().size());
+					}
+					catch(Exception e) {
+						e.printStackTrace();
 					}
 				}
-				System.out.println("dataMap#"+dataMap);
+				//System.out.println("dataMap#"+dataMap);
 				json.put("processdata", dataMap);
 			
 			dto.setFormData(json.toString());
@@ -396,6 +456,10 @@ public class WorkflowServiceImpl
 			if(objBPMNTaskDAO!=null)
 			{
 				objBPMNTaskDAO.close(Constants.DB_PUNIT);
+			}
+			if(objUserMgmtDAO!=null)
+			{
+				objUserMgmtDAO.close(Constants.DB_PUNIT);
 			}
 		}
 		return dto;
@@ -465,9 +529,10 @@ public class WorkflowServiceImpl
 			LinkedHashMap<String,String> computeFieldMap=new LinkedHashMap<String,String>();
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			String companyCode=json.getString("companyCode");
-			System.out.println("companyCode#"+companyCode);
+			//System.out.println("companyCode#"+companyCode);
 			json.remove("companyCode");
-			dto.setTaskName(json.getJSONObject("step").getJSONObject("stepDefinition").getString("LABEL"));
+			//dto.setTaskName(json.getJSONObject("step").getJSONObject("stepDefinition").getString("LABEL"));
+			dto.setTaskName("WIDGET");
 			//JSONArray fieldArr=json.getJSONArray("fields");
 			
 			JSONObject jsonschemaobj = json.getJSONObject("jsonschema");
@@ -479,7 +544,7 @@ public class WorkflowServiceImpl
 			    	JSONObject fieldJSON= jsonschemaobj.getJSONObject(key);
 					String fieldName=fieldJSON.getString("NAME");
 					String defaultValue=fieldJSON.getString("DEFAULTVALUE");
-					System.out.println("fieldName#"+fieldName+"#defaultValue#"+defaultValue);
+					//System.out.println("fieldName#"+fieldName+"#defaultValue#"+defaultValue);
 					if(defaultValue!=null && defaultValue.equalsIgnoreCase("=CURRENTUSER()")) {
 						dataMap.put(fieldName, userId);
 					}else if(defaultValue!=null)
@@ -501,6 +566,7 @@ public class WorkflowServiceImpl
 					Binding objBinding = new Binding();
 					objBinding.setVariable("zf", dataMap);
 					objBinding.setVariable("master", new MasterHelper(companyCode));
+					objBinding.setVariable("fn", new FunctionsUtil(companyCode));
 					GroovyShell shell = new GroovyShell(objBinding);
 					
 					ScriptEngineManager manager = new ScriptEngineManager();
@@ -511,18 +577,18 @@ public class WorkflowServiceImpl
 					for(String fieldName:computeFieldMap.keySet())
 					{
 						String formula=computeFieldMap.get(fieldName);
-						System.out.println("fieldName#"+fieldName+"#formula#"+formula);
+						//System.out.println("fieldName#"+fieldName+"#formula#"+formula);
 						String computedValue = "";
 						if(formula.startsWith("eval(")) {
 						   computedValue = String.valueOf(engine.eval(formula, scope));
 						}else{
 					       computedValue = (String) shell.evaluate(formula);
 						}
-						System.out.println("fieldName#"+fieldName+"#formula#"+formula+"#computedValue#"+computedValue);
+						//System.out.println("fieldName#"+fieldName+"#formula#"+formula+"#computedValue#"+computedValue);
 						dataMap.put(fieldName, computedValue);
 					}
 				}
-				System.out.println("dataMap#"+dataMap);
+				//System.out.println("dataMap#"+dataMap);
 				json.put("processdata", dataMap);
 			
 			dto.setFormData(json.toString());
@@ -557,7 +623,7 @@ public class WorkflowServiceImpl
 				if(objBPMNTaskDAO.findLastLockedTimeDiff(task.getTaskId()) > 15 ) {
 					unlock = true;
 				}
-				System.out.println("Time Diff of locked user "+unlock);
+				//System.out.println("Time Diff of locked user "+unlock);
 			}
 			
 			if(bpmntask != null && bpmntask.getBpmnTaskId() >0 && (bpmntask.getLockedUser() ==null || bpmntask.getLockedUser().equalsIgnoreCase(task.getLockedUser()) || unlock) ) {
@@ -615,7 +681,7 @@ public class WorkflowServiceImpl
 					objBPMNTaskDAO.updateBPMNTaskStatus(task.getPrevioustaskId(), 1,task.getLockedUser());
 					objBPMNTaskDAO.commit();
 					}
-				System.out.println("Task is Already Locked by user - "+bpmntask.getLockedUser()+"!!!");
+				//System.out.println("Task is Already Locked by user - "+bpmntask.getLockedUser()+"!!!");
 				task.setResponseCode("409");
 				task.setResponsMsg("Task is Already Locked by user - "+bpmntask.getLockedUser()+"!!!");
 			}
@@ -643,9 +709,9 @@ public class WorkflowServiceImpl
 			objBPMNTaskDAO=new BPMNTaskDAO(Constants.DB_PUNIT);
 			byte[] docData=fileObj.getBytes();
 			objBPMNTaskDAO.begin();
-			TXNDocments objTXNDocments=objBPMNTaskDAO.createDocument(bpmnTxRefNo, stepName, fileObj.getOriginalFilename(), docData,userId, companyCode,fileObj.getContentType(), null);
+			TXNDocments objTXNDocments=objBPMNTaskDAO.createDocument(bpmnTxRefNo, stepName, fileObj.getOriginalFilename(), null,userId, companyCode,fileObj.getContentType(), null);
 			objBPMNTaskDAO.commit();
-			AWSS3ServiceImpl service = new AWSS3ServiceImpl();
+			StorageService service = new GoogleCloudStorageServiceImpl();
 			service.uploadFile(fileObj, companyCode,objTXNDocments.getDocumentId());
 			if(objTXNDocments!=null)
 			{
@@ -766,7 +832,7 @@ public class WorkflowServiceImpl
 			}
 			else
 			{
-				System.out.println(bpmnTxRefNo+" No Documents available");
+				//System.out.println(bpmnTxRefNo+" No Documents available");
 			}
 		}
 		catch(Exception ex)
@@ -854,6 +920,17 @@ public class WorkflowServiceImpl
 		try {
 				objBPMNTaskDAO = new BPMNTaskDAO(Constants.DB_PUNIT);
 				message=objBPMNTaskDAO.createDSProcess(companyCode, json, processtype);
+				JSONArray masterlist= json.getJSONArray("MASTERLIST");
+				
+				if(masterlist!= null && masterlist.length()>0) {
+					for(int i=0;i<masterlist.length();i++) {
+						JSONObject masterjson = this.getMasterDetail("ZF", masterlist.getString(i));
+						JSONObject masterjsonComp = this.getMasterDetail(companyCode, masterlist.getString(i));
+						if(!masterjsonComp.has("metadata")) {
+						     this.createMaster(companyCode, masterlist.getString(i), masterjson.getJSONArray("metadata").toString());
+						}
+					}
+				}
 			}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -869,6 +946,26 @@ public class WorkflowServiceImpl
 	}
    
 
+   public String deleteDSProcess(String companyCode, String processId) throws JPAIllegalStateException {
+		BPMNTaskDAO objBPMNTaskDAO = null;
+		//JSONObject json = new JSONObject(processJson);
+		String message = null;
+		try {
+				objBPMNTaskDAO = new BPMNTaskDAO(Constants.DB_PUNIT);
+				message=objBPMNTaskDAO.deleteDSProcess(companyCode, processId);
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally 
+		{
+			if(objBPMNTaskDAO!=null)
+			{
+				objBPMNTaskDAO.close(Constants.DB_PUNIT);
+			}
+		}
+		return message;
+	}
    
    public void createNotificationTemplate(String companyCode,JSONObject objJSON) 
    {
@@ -880,15 +977,15 @@ public class WorkflowServiceImpl
 			JSONObject process = (JSONObject) objJSON.get("process");
 			String processId=process.getString("PROCESSID");
 			String bpmnId=objJSON.getJSONObject("bpmn").getString("BPMNID");
-			System.out.println("createNotificationTemplate#bpmnId#"+bpmnId);
+			//System.out.println("createNotificationTemplate#bpmnId#"+bpmnId);
 			JSONArray stepArray=objJSON.getJSONArray("steps");
-			System.out.println("createNotificationTemplate#stepArray#"+stepArray);
+			//System.out.println("createNotificationTemplate#stepArray#"+stepArray);
 			ArrayList<StepNotificationDTO> notificationList=new ArrayList<StepNotificationDTO>();
 			HashMap<String,NotificationTemplateDTO>  notifyTemplateMap=new HashMap<String, NotificationTemplateDTO>();
 			if(!objJSON.isNull("templates"))
 			{
 				JSONArray templateArray=objJSON.getJSONArray("templates");
-				System.out.println("createNotificationTemplate#templatesArr#"+templateArray);
+				//System.out.println("createNotificationTemplate#templatesArr#"+templateArray);
 				if(templateArray!=null && templateArray.length()>0)
 				{
 					for(int j=0;j<templateArray.length();j++)
@@ -912,7 +1009,7 @@ public class WorkflowServiceImpl
 					if(!stepObj.isNull("eventtemplates"))
 					{
 						JSONArray notficationArray=stepObj.getJSONArray("eventtemplates");
-						System.out.println("createNotificationTemplate#notficationArray#"+notficationArray);
+						//System.out.println("createNotificationTemplate#notficationArray#"+notficationArray);
 						if(notficationArray!=null && notficationArray.length()>0)
 						{
 							for(int j=0;j<notficationArray.length();j++)
@@ -926,8 +1023,8 @@ public class WorkflowServiceImpl
 								objStepNotificationDTO.setStepName(stepDefObj.getString("NAME"));
 								objStepNotificationDTO.setBpmnId(process.getString("BPMNID"));
 								objStepNotificationDTO.setProcessId(process.getString("PROCESSID"));
-								objStepNotificationDTO.setSubsTotype(notificationJSON.getBoolean("subsTotype"));
-								objStepNotificationDTO.setSubsCCtype(notificationJSON.getBoolean("subsCCtype"));
+								objStepNotificationDTO.setSubsTotype(notificationJSON.has("subsTotype") ? notificationJSON.getBoolean("subsTotype"):false);
+								objStepNotificationDTO.setSubsCCtype(notificationJSON.has("subsCCtype") ? notificationJSON.getBoolean("subsCCtype"):false);
 								if(objStepNotificationDTO.isSubsTotype()) {
 								objStepNotificationDTO.setSubsToField(notificationJSON.getString("subsToField"));
 								}
@@ -1025,14 +1122,14 @@ public class WorkflowServiceImpl
 		}
 	}
 	
-	public ArrayList<TaskDTO> getActiveTaskList(String companyCode,String userId,String filterType,String filterValue) throws Exception
+	public ArrayList<TaskDTO> getActiveTaskList(String companyCode,String userId,String filterType,String filterValue, String bpmnid) throws Exception
 	{
 		BPMNTaskDAO objBPMNTaskDAO = null;
 		ArrayList<TaskDTO> taskList = null;
 		try
 		{
 			 objBPMNTaskDAO = new BPMNTaskDAO(Constants.DB_PUNIT);
-			 taskList = (ArrayList<TaskDTO>) objBPMNTaskDAO.getActiveTaskList(companyCode, userId, filterType, filterValue);
+			 taskList = (ArrayList<TaskDTO>) objBPMNTaskDAO.getActiveTaskList(companyCode, userId, filterType, filterValue, bpmnid); 
 		}
 		catch(Exception ex)
 		{
@@ -1087,7 +1184,7 @@ public class WorkflowServiceImpl
 			e.printStackTrace();
 			throw new ApplicationException(e.getMessage());
 		}finally{
-			System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		
 	}
@@ -1246,6 +1343,7 @@ public class WorkflowServiceImpl
 			{
 				objBinding.setVariable("zf", datamap);
 				objBinding.setVariable("master", new MasterHelper(companycode));
+				objBinding.setVariable("fn", new FunctionsUtil(companycode));
 				
 				GroovyShell shell = new GroovyShell(objBinding);
 				
@@ -1271,11 +1369,14 @@ public class WorkflowServiceImpl
    
    public ArrayList<String> getMasterDropDown(String companyCode, String mastername, String columnname) throws ApplicationException {
 		
+	  
+	   
 		try (MasterDAO objMasterDAO = new MasterDAO(Constants.DB_PUNIT)) {
-			
-			
-			return objMasterDAO.getMasterDropDown(companyCode,mastername,columnname);
-
+			if("ZFUSERS".equalsIgnoreCase(mastername) && "ZFUSERS".equalsIgnoreCase(columnname)) {
+			   return objMasterDAO.getAllUsers(companyCode);
+			}else{
+			   return objMasterDAO.getMasterDropDown(companyCode,mastername,columnname);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ApplicationException(e.getMessage());
@@ -1287,7 +1388,7 @@ public class WorkflowServiceImpl
 		try {
 			return json.getString(property);
 		}catch (Exception e) {
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
 			return null;
 		}
 		

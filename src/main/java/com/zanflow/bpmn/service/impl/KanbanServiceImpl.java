@@ -1,7 +1,10 @@
 package com.zanflow.bpmn.service.impl;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,6 +71,8 @@ public class KanbanServiceImpl
 			objBPMNData.setDataMap(datamap);
 			objBPMNData.setStepName(objTaskDTO.getTaskName());
 			
+			
+			
 			objKanbanDAO=new KanbanDAO(Constants.DB_PUNIT);
 			JSONObject boardconfig = objKanbanDAO.getBoardConfig(objTaskDTO.getCompanyCode(), objTaskDTO.getBpmnId());
 			String cardtitle = boardconfig.getJSONObject("boardconfig").getJSONObject("process").getString("CARDTITLE");
@@ -76,7 +81,8 @@ public class KanbanServiceImpl
 			String stepname = columns.getJSONObject(0).getString("id");
 			
 		    ArrayList<String> columnNames = new ArrayList<String>();
-			objBPMNCompleterResultDTO=objKanbanEngine.initiateCard(objBPMNData,objTaskDTO.getLockedUser(), stepname, cardtitle, carddescription);
+			objBPMNCompleterResultDTO=objKanbanEngine.initiateCard(objBPMNData,objTaskDTO.getLockedUser(), stepname, cardtitle, carddescription, objTaskDTO);
+			
 			
 			BPMNProcessInfo objBPMNProcessInfo=objKanbanDAO.findBPMNProcessInfo(objBPMNCompleterResultDTO.getBpmnTxRefNo());
 			JSONObject obj = new JSONObject(datamap);
@@ -85,11 +91,12 @@ public class KanbanServiceImpl
 			
 			
 			
+			
 			if(objBPMNCompleterResultDTO.getBpmnNextSteps()!=null && objBPMNCompleterResultDTO.getBpmnNextSteps().size()>0)
 			{
 				String currStepName="";
 				for(BPMNStepDTO objStep: objBPMNCompleterResultDTO.getBpmnNextSteps())
-				{
+				{	
 					currStepName=currStepName+objStep.getStepName()+",";
 				}
 				currStepName=currStepName.substring(0,currStepName.length()-1);
@@ -104,7 +111,7 @@ public class KanbanServiceImpl
 					docIds.add(String.valueOf(objTXNDocumentDTO.getDocumentId()));
 				}
 				int updateCount=objKanbanDAO.updateDocuments(objBPMNCompleterResultDTO.getBpmnTxRefNo(), docIds);
-				System.out.println("no of documents update -----------> " +updateCount);
+				//System.out.println("no of documents update -----------> " +updateCount);
 			}
 			
 			objTaskDTO.setRefId(objBPMNCompleterResultDTO.getBpmnTxRefNo());
@@ -120,9 +127,9 @@ public class KanbanServiceImpl
 			objKanbanDAO.commit();
 			
 			//NotificationHelper objNotificationHelper=new NotificationHelper();
-			//System.out.println("Notification helpper current step");
+			////System.out.println("Notification helpper current step");
 			//objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objTaskDTO.getBpmnId(), objTaskDTO.getTaskName(), "Complete", datamap,null,objTaskDTO.getCompanyCode());
-			//System.out.println("Notification helpper next step ");
+			////System.out.println("Notification helpper next step ");
 			//objNotificationHelper.sendMail(objBPMNCompleterResultDTO.getBpmnTxRefNo(), objBPMNCompleterResultDTO.getBpmnNextSteps(), "Create", datamap,objTaskDTO.getBpmnId(),objTaskDTO.getCompanyCode(),objTaskDTO.getBpmnId());
 	
 		}
@@ -153,7 +160,9 @@ public class KanbanServiceImpl
 			BPMNProcessInfo objBPMNProcessInfo=objKanbanDAO.findBPMNProcessInfo(objTaskDTO.getRefId());
 			BPMNTask task = objKanbanDAO.findBPMNTaskById(objTaskDTO.getTaskId());
 			
-			task.setElementId(objTaskDTO.getTaskName());
+			//task.setElementId(objTaskDTO.getTaskName());
+			task.setElementId(objTaskDTO.getSelectedResponse());
+			task.setSelectedResponse(objTaskDTO.getSelectedResponse());
 			objBPMNProcessInfo.setCurrentStepName(objTaskDTO.getTaskName());
 			objKanbanDAO.begin();
 			objKanbanDAO.updateBPMNTask(task);
@@ -195,12 +204,34 @@ public class KanbanServiceImpl
 			objBPMNProcessInfo.setProcessdata(obj.toString());
 			BPMNTask task = objKanbanDAO.findBPMNTaskById(objTaskDTO.getTaskId());
 			JSONObject boardconfig = objKanbanDAO.getBoardConfig(objTaskDTO.getCompanyCode(), objTaskDTO.getBpmnId());
-			String cardtitle = boardconfig.getJSONObject("boardconfig").getJSONObject("process").getString("CARDTITLE");
-			String carddescription = boardconfig.getJSONObject("boardconfig").getJSONObject("process").getString("CARDDESCRIPTION");
+			//String cardtitle = boardconfig.getJSONObject("boardconfig").getJSONObject("process").getString("CARDTITLE");
+			//String carddescription = boardconfig.getJSONObject("boardconfig").getJSONObject("process").getString("CARDDESCRIPTION");
+			SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
 			
-			task.setStepLabel(KanbanEngine.getCardTitle(datamap, cardtitle));
-			task.setTaskSubject(KanbanEngine.getCardTitle(datamap, carddescription));
-			task.setElementId(objTaskDTO.getTaskName());
+			//task.setStepLabel(KanbanEngine.getCardTitle(datamap, cardtitle));
+			//task.setTaskSubject(KanbanEngine.getCardTitle(datamap, carddescription));
+			
+			task.setElementType(objTaskDTO.getTaskType());
+			task.setStepLabel(objTaskDTO.getStepLabel());
+			task.setTaskSubject(objTaskDTO.getTaskSubject());
+			
+			task.setElementId(objTaskDTO.getSelectedResponse());
+			task.setSelectedResponse(objTaskDTO.getSelectedResponse());
+			
+			task.setAssignedUser(objTaskDTO.getAssigneduser());
+			if(objTaskDTO.getDueDate()!=null && objTaskDTO.getDueDate()!="") {
+				task.setDueDate(new Timestamp(myFormat.parse(objTaskDTO.getDueDate()).getTime()));
+			}
+			if(objTaskDTO.getCreatedDate()!=null && objTaskDTO.getCreatedDate()!="") {
+				task.setTaskCreatedDate(new Timestamp(myFormat.parse(objTaskDTO.getCreatedDate()).getTime()));
+			}
+			if(objTaskDTO.getCompletedDate()!=null && objTaskDTO.getCompletedDate()!="") {
+				task.setTaskCompleteDate(new Timestamp(myFormat.parse(objTaskDTO.getCompletedDate()).getTime()));
+			}
+			if(objTaskDTO.getLastModifiedDate()!=null && objTaskDTO.getLastModifiedDate()!="") {
+				task.setLastModifiedDate(new Timestamp(myFormat.parse(objTaskDTO.getLastModifiedDate()).getTime()));
+			}
+			task.setPriority(objTaskDTO.getPriority());
 			
 			objBPMNProcessInfo.setCurrentStepName(objTaskDTO.getTaskName());
 			objKanbanDAO.begin();
@@ -238,7 +269,7 @@ public class KanbanServiceImpl
 			/**Clean all Comments of this task and then Save all new comments of this task.*/
 			int commnetCleanCnt = objKanbanDAO.removeComments(objTaskDTO.getRefId(), objTaskDTO.getTaskId());
 			int commentCount=0;
-			System.out.println("CleanComments#cnt#"+commnetCleanCnt);
+			//System.out.println("CleanComments#cnt#"+commnetCleanCnt);
 			for (CommentsDTO commentsDTO : objTaskDTO.getComments()) {
 				if(objTaskDTO.getTaskId()==commentsDTO.getTaskId()) {
 					commentCount++;
@@ -248,7 +279,7 @@ public class KanbanServiceImpl
 					objKanbanDAO.getObjJProvider().save(comments);
 				}
 			}
-			System.out.println("CleanComments#cnt#"+commnetCleanCnt+"#"+commentCount);
+			//System.out.println("CleanComments#cnt#"+commnetCleanCnt+"#"+commentCount);
 		}catch (ApplicationException e) {
 			throw e;
 		}finally {
@@ -266,12 +297,12 @@ public class KanbanServiceImpl
 			LinkedHashMap<String,String> computeFieldMap=new LinkedHashMap<String,String>();
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			//String companyCode=json.getString("companycode");
-			//System.out.println("companyCode#"+companyCode);
+			////System.out.println("companyCode#"+companyCode);
 			
 			JSONObject jsonschema = json.getJSONObject("boardconfig").getJSONObject("jsonschema");
-			dto.setTaskName("card task");
+			dto.setTaskName("");
 			dto.setCompanyCode(companycode);
-			dto.setTaskType("CARD");
+			dto.setTaskType("");
 			String[] fieldArr=JSONObject.getNames(jsonschema);
 			if(fieldArr!=null && fieldArr.length>0)
 			{
@@ -280,7 +311,7 @@ public class KanbanServiceImpl
 					JSONObject fieldJSON= jsonschema.getJSONObject(fieldArr[j]);
 					String fieldName=fieldJSON.getString("NAME");
 					String defaultValue=fieldJSON.getString("DEFAULTVALUE");
-					System.out.println("fieldName#"+fieldName+"#defaultValue#"+defaultValue);
+					//System.out.println("fieldName#"+fieldName+"#defaultValue#"+defaultValue);
 					if(defaultValue!=null && defaultValue.equalsIgnoreCase("=CURRENTUSER()")) {
 						dataMap.put(fieldName, userId);
 					}else if(defaultValue!=null)
@@ -308,18 +339,18 @@ public class KanbanServiceImpl
 					for(String fieldName:computeFieldMap.keySet())
 					{
 						String formula=computeFieldMap.get(fieldName);
-						System.out.println("fieldName#"+fieldName+"#formula#"+formula);
+						//System.out.println("fieldName#"+fieldName+"#formula#"+formula);
 						String computedValue = "";
 						if(formula.startsWith("eval(")) {
 						   computedValue = String.valueOf(engine.eval(formula, scope));
 						}else{
 					       computedValue = (String) shell.evaluate(formula);
 						}
-						System.out.println("fieldName#"+fieldName+"#formula#"+formula+"#computedValue#"+computedValue);
+						//System.out.println("fieldName#"+fieldName+"#formula#"+formula+"#computedValue#"+computedValue);
 						dataMap.put(fieldName, computedValue);
 					}
 				}
-				System.out.println("dataMap#"+dataMap);
+				//System.out.println("dataMap#"+dataMap);
 				json.put("processdata", dataMap);
 			}
 			dto.setFormData(json.toString());
@@ -365,8 +396,29 @@ public class KanbanServiceImpl
 				json.put("processdata", processData);
 				card.setFormData(json.toString());
 				
+				card.setAssigneduser(bpmntask.getAssignedUser());
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				if(bpmntask.getDueDate() != null){
+					card.setDueDate(df.format(new Date(bpmntask.getDueDate().getTime())));
+				}
+				if(bpmntask.getTaskCreatedDate() != null){
+					card.setCreatedDate(df.format(new Date(bpmntask.getTaskCreatedDate().getTime())));
+				}
+				if(bpmntask.getTaskCompleteDate() != null){
+					card.setCompletedDate(df.format(new Date(bpmntask.getTaskCompleteDate().getTime())));
+				}
+				if(bpmntask.getLastModifiedDate() != null){
+					card.setLastModifiedDate(df.format(new Date(bpmntask.getLastModifiedDate().getTime())));
+				}
+				card.setReporter(objBPMNProcessInfo.getInitatedBy());
+				card.setPriority(bpmntask.getPriority());
 				
+				
+				card.setTaskType(bpmntask.getElementType());
 				card.setStepLabel(bpmntask.getStepLabel());
+				card.setTaskSubject(bpmntask.getTaskSubject());
+				card.setSelectedResponse(bpmntask.getSelectedResponse());
+				
 				/**
 				 * Prepare comments List for the Txn
 				 */
@@ -542,6 +594,31 @@ public class KanbanServiceImpl
 		}
 		return laneList;
 	}
+	
+	
+	public ArrayList<TaskDTO> getTaskList(String companyCode,String userId) throws Exception
+	{
+		KanbanDAO objKanbanDAO = null;
+		ArrayList<TaskDTO> taskList = null;
+		try
+		{
+			objKanbanDAO = new KanbanDAO(Constants.DB_PUNIT);
+			taskList = (ArrayList<TaskDTO>) objKanbanDAO.getTaskList(companyCode, userId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+			throw new Exception(ex);
+		}
+		finally
+		{
+			if(objKanbanDAO!=null)
+			{		
+				objKanbanDAO.close(Constants.DB_PUNIT);
+			}
+		}
+		return taskList;
+	}
 
 	/**
 	 * 
@@ -581,7 +658,7 @@ public class KanbanServiceImpl
 			e.printStackTrace();
 			throw new ApplicationException(e.getMessage());
 		}finally{
-			System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
+			//System.out.println("#BpmnTaskDAO#saveDSProcess#End#TT#"+ (System.currentTimeMillis() - t1));
 		}
 		
 	}
@@ -591,7 +668,7 @@ public class KanbanServiceImpl
 		try {
 			return json.getString(property);
 		}catch (Exception e) {
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
 			return null;
 		}
 		
