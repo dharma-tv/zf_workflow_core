@@ -36,24 +36,31 @@ public class AuthTokenFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
-		System.out.println("Starting Transaction for req :{}" + req.getRequestURI() + "#IsLogin#"
-				+ req.getRequestURI().contains("/login") + "#IsSwagger#" + req.getRequestURI().contains("/swagger")
-				+ "#IsApi-docs#" + req.getRequestURI().contains("/api-docs"));
+		//System.out.println("Starting Transaction for req :{}" + req.getRequestURI() + "#IsLogin#"
+		//		+ req.getRequestURI().contains("/login") + "#IsSwagger#" + req.getRequestURI().contains("/swagger")
+		//		+ "#IsApi-docs#" + req.getRequestURI().contains("/api-docs"));
 		String jwt = parseJwt(req);
 		JwtUtils jwtUtils = new JwtUtils();
-		System.out.println("doFilterInternal#jwt#" + jwt);
+		//System.out.println("doFilterInternal#jwt#" + jwt);
 
-	/*	if (true) {
-		chain.doFilter(request, response);
-
-	}
-	else */if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
+		String requestURI = req.getRequestURI();
+		//if(requestURI.split("/").length>0) {
+		//	requestURI = requestURI.split("/")[1];
+		//}
+		System.out.println("Start of " + requestURI);
+		req.setAttribute("start_time", System.currentTimeMillis());
+		req.setAttribute("request_uri", requestURI);
+		
+		if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
 			//res.setHeader("Access-Control-Allow-Origin", "*");
 			//res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 			chain.doFilter(request, response);
 			
 
-		} 
+		} else if(req.getRequestURI().contains("/login") || req.getRequestURI().contains("/google-login") || req.getRequestURI().contains("/logout") ||  req.getRequestURI().contains("swagger") || req.getRequestURI().contains("/api-docs") || req.getRequestURI().contains("/signin") || req.getRequestURI().contains("/refresh-token") || req.getRequestURI().contains("sign-up") || req.getRequestURI().contains("/activate-profile")){
+			chain.doFilter(request, response);
+		}
+	
 		else if(req.getRequestURI().contains("/external/")){
 			Claims claim = jwtUtils.validateAPIIntegrationKey(jwt, "zanflowapi");
 			req.setAttribute("bpmnid", claim.getSubject());
@@ -67,7 +74,7 @@ public class AuthTokenFilter implements Filter {
 			chain.doFilter(request, response);
 		}
 		else if(req.getRequestURI().contains("/externaltask/authenticate")){
-			System.out.println("Inside external task decode ... ");
+			//System.out.println("Inside external task decode ... ");
 			Claims claim = jwtUtils.validateAPIIntegrationKey(jwt, "zanflowexternaltask");
 			req.setAttribute("taskid", claim.getSubject());
 			req.setAttribute("companycode", claim.getAudience());
@@ -75,19 +82,19 @@ public class AuthTokenFilter implements Filter {
 	    }
 		 else if (req.getRequestURI().contains("/login") || req.getRequestURI().contains("swagger")
 				|| req.getRequestURI().contains("/api-docs") || req.getRequestURI().contains("/signin")
-				|| req.getRequestURI().contains("/refresh-token")) {
-			System.out.println("doFilterInternal##");
+				|| req.getRequestURI().contains("/refresh-token") || req.getRequestURI().contains("/integration/") || req.getRequestURI().contains("/forgotPassword")) {
+			//System.out.println("doFilterInternal##");
 			chain.doFilter(request, response);
 		}
 		else if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 
 				String username = jwtUtils.getUserNameFromJwtToken(jwt);
-				System.out.println("doFilterInternal#validateJwtToken#" + username);
+				//System.out.println("doFilterInternal#validateJwtToken#" + username);
 				chain.doFilter(request, response);
 				 
 			}
 		 else {
-			System.out.println("doFilterInternal##else" + HttpStatus.UNAUTHORIZED.value());
+			//System.out.println("doFilterInternal##else" + HttpStatus.UNAUTHORIZED.value());
 			Map<String, Object> errorDetails = new HashMap<>();
 			errorDetails.put("message", "Expired token");
 			res.setStatus(500);
@@ -101,11 +108,11 @@ public class AuthTokenFilter implements Filter {
 	}
 
 	private String parseJwt(HttpServletRequest request) {
-		System.out.println("parseJwt#" + request.getHeaderNames().toString());
+		//System.out.println("parseJwt#" + request.getHeaderNames().toString());
 		String headerAuth = request.getHeader("Authorization");
-		System.out.println("headerAuth#" + headerAuth);
+		//System.out.println("headerAuth#" + headerAuth);
 		if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-			System.out.println("headerAuth##" + headerAuth.substring(7, headerAuth.length()));
+			//System.out.println("headerAuth##" + headerAuth.substring(7, headerAuth.length()));
 			return headerAuth.substring(7, headerAuth.length());
 		}
 
