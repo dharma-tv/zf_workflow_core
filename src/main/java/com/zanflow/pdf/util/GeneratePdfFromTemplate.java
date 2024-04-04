@@ -27,7 +27,7 @@ public class GeneratePdfFromTemplate {
 
     public String generatePdfFromHtml(String companyCode,String processid,String bpmnid,String templateid,String bpmnTxrefNo,String stepName, Map<String, Object> dataMap) throws IOException, DocumentException, EntityNotFoundException, EntityExistsException, ApplicationException {
         
-    	System.out.println("#companyCode#"+companyCode+"#processid#"+processid+"#bpmnid#"+bpmnid+"#templateid#"+templateid+"#bpmnTxrefNo#"+bpmnTxrefNo+"#stepName#"+stepName);
+    	//System.out.println("#companyCode#"+companyCode+"#processid#"+processid+"#bpmnid#"+bpmnid+"#templateid#"+templateid+"#bpmnTxrefNo#"+bpmnTxrefNo+"#stepName#"+stepName);
         
     	/**Retrieve the template Details**/
         BPMNRptTemplatesPK templatePk = new BPMNRptTemplatesPK(companyCode,processid,bpmnid,templateid);
@@ -57,7 +57,7 @@ public class GeneratePdfFromTemplate {
         
         try(BPMNTaskDAO dao = new BPMNTaskDAO(provider)) {
 			TXNDocments objTXNDocments=dao.createDocument(bpmnTxrefNo, stepName, "", outputStream.toByteArray(),"", companyCode,"content\\pdf", null);
-			System.out.println("#DocID#"+objTXNDocments.getDocumentId());
+			//System.out.println("#DocID#"+objTXNDocments.getDocumentId());
         } catch (Exception e) {
 			e.printStackTrace();
 		}
