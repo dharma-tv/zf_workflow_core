@@ -41,7 +41,7 @@ public final class JPAUtil {
 
 			catch(Exception e)
 			{
-				System.out.println("Problem with EntityManager ");
+				//System.out.println("Problem with EntityManager ");
 				e.printStackTrace();
 			}			
 			return em;
@@ -65,14 +65,14 @@ public final class JPAUtil {
 				objEmfMap.put(unitName, emf);
 			}
 			/*else {
-				System.out.println("EntityMangerFactory AV");
+				//System.out.println("EntityMangerFactory AV");
 			}*/
 		}
 
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			System.out.println("Problem with EntityManagerFactory ");
+			//System.out.println("Problem with EntityManagerFactory ");
 		}
 		return emf;
 	}
