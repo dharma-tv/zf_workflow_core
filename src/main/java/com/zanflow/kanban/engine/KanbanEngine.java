@@ -8,6 +8,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,6 +27,7 @@ import com.zanflow.bpmn.BPMNData;
 import com.zanflow.bpmn.dao.BPMNTaskDAO;
 import com.zanflow.bpmn.dto.BPMNCompleterResultDTO;
 import com.zanflow.bpmn.dto.BPMNStepDTO;
+import com.zanflow.bpmn.dto.TaskDTO;
 import com.zanflow.bpmn.elements.BasicElement;
 import com.zanflow.bpmn.elements.CallActivityElement;
 import com.zanflow.bpmn.elements.EndEventElement;
@@ -123,7 +126,7 @@ public class KanbanEngine {
 		URL path =Thread.currentThread().getContextClassLoader().getResource(searchKey+".bpmn");
 		if(path!=null)
 		{
-			System.out.println(path.getFile());
+			//System.out.println(path.getFile());
 			File file = new File(path.getFile());
 			objBpmnModelInstance = Bpmn.readModelFromFile(file);
 			BPMNProcess objBPMNProcess=new BPMNProcess();
@@ -206,7 +209,7 @@ public class KanbanEngine {
 		return objBPMNProcess;
 	}
 	
-	public BPMNCompleterResultDTO initiateCard(BPMNData objBPMNData,String userId, String stepname, String cardtitle, String carddescription)throws Exception
+	public BPMNCompleterResultDTO initiateCard(BPMNData objBPMNData,String userId, String stepname, String cardtitle, String carddescription, TaskDTO objTaskDTO)throws Exception
 	{
 		BPMNTaskDAO objBPMNTaskDAO = null;
 		BPMNCompleterResultDTO objBPMNCompleterResultDTO=new BPMNCompleterResultDTO();
@@ -219,14 +222,40 @@ public class KanbanEngine {
 					objBPMNTask.setBpmnId(objBPMNData.getBpmnId());
 					objBPMNTask.setStatusCode(1);
 					
-					objBPMNTask.setElementType("userTask");
+					//objBPMNTask.setElementType("cardTask");
 					objBPMNTask.setBpmnTxRefNo(bpmnTxrefNo);
 					objBPMNTask.setCompanyCode(objBPMNData.getCompanyCode());
 					
 					
-					objBPMNTask.setElementId(stepname);
-					objBPMNTask.setStepLabel(getCardTitle(objBPMNData.getDataMap(), cardtitle));
-					objBPMNTask.setTaskSubject(getCardTitle(objBPMNData.getDataMap(), carddescription));
+					//objBPMNTask.setElementId(stepname);
+					//objBPMNTask.setSelectedResponse(stepname);
+					objBPMNTask.setElementId(objTaskDTO.getSelectedResponse());
+					objBPMNTask.setSelectedResponse(objTaskDTO.getSelectedResponse());
+					
+					//objBPMNTask.setStepLabel(getCardTitle(objBPMNData.getDataMap(), cardtitle));
+					//objBPMNTask.setTaskSubject(getCardTitle(objBPMNData.getDataMap(), carddescription));
+					
+					objBPMNTask.setElementType(objTaskDTO.getTaskType());
+					objBPMNTask.setStepLabel(objTaskDTO.getStepLabel());
+					objBPMNTask.setTaskSubject(objTaskDTO.getTaskSubject());
+					
+					SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+					objBPMNTask.setAssignedUser(objTaskDTO.getAssigneduser());
+					
+					objBPMNTask.setPriority(objTaskDTO.getPriority());
+					
+					if(objTaskDTO.getDueDate()!=null && objTaskDTO.getDueDate()!="") {
+						objBPMNTask.setDueDate(new Timestamp(myFormat.parse(objTaskDTO.getDueDate()).getTime()));
+					}
+					if(objTaskDTO.getCreatedDate()!=null && objTaskDTO.getCreatedDate()!="") {
+						objBPMNTask.setTaskCreatedDate(new Timestamp(myFormat.parse(objTaskDTO.getCreatedDate()).getTime()));
+					}
+					if(objTaskDTO.getCompletedDate()!=null && objTaskDTO.getCompletedDate()!="") {
+						objBPMNTask.setTaskCompleteDate(new Timestamp(myFormat.parse(objTaskDTO.getCompletedDate()).getTime()));
+					}
+					if(objTaskDTO.getLastModifiedDate()!=null && objTaskDTO.getLastModifiedDate()!="") {
+						objBPMNTask.setLastModifiedDate(new Timestamp(myFormat.parse(objTaskDTO.getLastModifiedDate()).getTime()));
+					}
 					
 					BPMNProcessInfo objBPMNProcessInfo=new BPMNProcessInfo();
 					objBPMNProcessInfo.setBpmnTxRefNo(bpmnTxrefNo);
@@ -292,7 +321,7 @@ public class KanbanEngine {
 				objBPMNTaskDAO.updateBPMNProcessInfo(objBPMNProcessInfo);
 				objBPMNTaskDAO.commit();
 				ArrayList<String> nextSteps=objBaseElement.completeTask(objBPMNData);
-				System.out.println("#completeTask#nextSteps#"+nextSteps);
+				//System.out.println("#completeTask#nextSteps#"+nextSteps);
 				if(nextSteps!=null && nextSteps.size()>0)
 				{
 					for(String stepName:nextSteps)
@@ -333,9 +362,9 @@ public class KanbanEngine {
 								objBPMNData1.setBpmnTaskId(task.getBpmnTaskId());
 								objBPMNData1.setCompanyCode(task.getCompanyCode());
 								objBPMNData1.setBpmnTask(task);
-								System.out.println("objBPMNData1.getDataMap()#before#"+objBPMNData1.getDataMap());
+								//System.out.println("objBPMNData1.getDataMap()#before#"+objBPMNData1.getDataMap());
 								BPMNCompleterResultDTO objBPMNCompleterResultDTO1=completeTask(objBPMNData1);
-								System.out.println("objBPMNData1.getDataMap()#after#"+objBPMNData1.getDataMap());
+								//System.out.println("objBPMNData1.getDataMap()#after#"+objBPMNData1.getDataMap());
 								if(objBPMNCompleterResultDTO1.getBpmnNextSteps()!=null && objBPMNCompleterResultDTO1.getBpmnNextSteps().size()>0)
 								{
 									bpmnNextSteps.addAll(objBPMNCompleterResultDTO1.getBpmnNextSteps());
@@ -504,17 +533,17 @@ public class KanbanEngine {
 //				objBPMNTaskDAO.rollback();
 //			}
 //			objBPMNTaskDAO.close();
-//			System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
+//			//System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
 //			Thread.currentThread().sleep(3000);
 //			completeTask(objBPMNData);
 //		}
 		catch(Exception ex)
 		{
 			ex.printStackTrace();
-			System.out.println(ex.getMessage());
+			//System.out.println(ex.getMessage());
 			if(ex.getMessage().startsWith("Row was updated or deleted by another transaction"))
 			{
-				System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
+				//System.out.println("javax.persistence.OptimisticLockException################"+objBPMNData.getBpmnTaskId()+"#"+objBPMNData.getStepName());
 				if(objBPMNTaskDAO.isActive())
 				{
 					objBPMNTaskDAO.rollback();
@@ -542,10 +571,10 @@ public class KanbanEngine {
 	public BasicElement getStepElement(BpmnModelInstance objBpmnModelInstance,String stepName)
 	{
 		ModelElementInstance element=objBpmnModelInstance.getModelElementById(stepName);
-		System.out.println(element.getDomElement().getAttribute("id"));
-		System.out.println(element.getDomElement().getAttribute("name"));
-		System.out.println(element.getElementType().getTypeName());
-		System.out.println(element.getDomElement().getChildElements());
+		//System.out.println(element.getDomElement().getAttribute("id"));
+		//System.out.println(element.getDomElement().getAttribute("name"));
+		//System.out.println(element.getElementType().getTypeName());
+		//System.out.println(element.getDomElement().getChildElements());
 		BasicElement objBaseElement= BasicElement.getElement(objBpmnModelInstance, element,element.getElementType().getTypeName());
 		return objBaseElement;	
 	}
