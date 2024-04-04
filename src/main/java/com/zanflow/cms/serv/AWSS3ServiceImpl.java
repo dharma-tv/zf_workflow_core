@@ -30,7 +30,7 @@ import com.zanflow.bpmn.util.AppProperties;
 import com.zanflow.common.db.Constants;
 
 @Service
-public class AWSS3ServiceImpl implements AWSS3Service {
+public class AWSS3ServiceImpl implements StorageService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AWSS3ServiceImpl.class);
 
@@ -40,15 +40,15 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 	// but not consume the main thread.
 	@Async
 	public void uploadFile(final MultipartFile multipartFile,String companyCode, long docid) {
-		System.out.println("File upload in progress.");
+		//System.out.println("File upload in progress.");
 		try {
 			final File file = convertMultiPartFileToFile(multipartFile);
 			String fileKey = docid+multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().indexOf("."));
 			uploadFileToS3Bucket(companyCode,getBucketName(companyCode), file,fileKey);
-			System.out.println("File upload is completed.");
+			//System.out.println("File upload is completed.");
 			file.delete();	// To remove the file locally created in the project folder.
 		} catch (final AmazonServiceException ex) {
-			System.out.println("File upload is failed.");
+			//System.out.println("File upload is failed.");
 			ex.printStackTrace();
 		}
 	}
@@ -88,7 +88,7 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 	}
 
 	private void uploadFileToS3Bucket(String companyCode,final String bucketName, final File file, String fileKey) {
-		System.out.println("Uploading file with name= " + fileKey);
+		//System.out.println("Uploading file with name= " + fileKey);
 		try{
 			AmazonS3 s3client = getAmazonS3Cient(companyCode);
 			final PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, getDocFolder(companyCode, fileKey), file);
@@ -101,7 +101,7 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 	}
 	
 	public void deleteFileS3Bucket(final String companyCode, String docid) {
-		System.out.println("deleteFileS3Bucket#filename#" + docid);
+		//System.out.println("deleteFileS3Bucket#filename#" + docid);
 		try {
 			AmazonS3 s3client = getAmazonS3Cient(companyCode);
 			s3client.deleteObject(getBucketName(companyCode), getDocFolder(companyCode, docid));
@@ -127,7 +127,7 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 	}
 	
 	private String getBucketName(String companycode) {
-		System.out.println("CompanyCode#"+companycode);
+		//System.out.println("CompanyCode#"+companycode);
 		//return AppProperties.getInstance().getPropery(Constants.S3_BUCKETNAME+getRegion(companycode));
 		return "zanflow-docs";
 	}
@@ -151,6 +151,12 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 			e.printStackTrace();
 		}
 		
+		
+	}
+
+	@Override
+	public void uploadFile(byte[] data, String filename, String companyCode, long docid) {
+		// TODO Auto-generated method stub
 		
 	}
 
