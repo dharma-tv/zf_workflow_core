@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - zanflow-api
+name: Build and deploy WAR app to Azure Web App - zanflow-api
 
 on:
   push:
@@ -22,13 +22,13 @@ jobs:
           java-version: '11'
 
       - name: Build with Maven
-        run: gradle build
+        run: mvn clean install
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/target/*.war'
 
   deploy:
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
-  
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
@@ -48,9 +48,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_82EF28D1B4684D318D501A82AA9C48FC }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_035B1DCDF7CC42A590FF81A9EEE043D1 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C9B9B7EC34C0428C8A2ECE743652C3FA }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_040AFF88C0AE48C988BD436DC313CC72 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ABE07B00A4BF4FB2814A71E5AFBFFD09 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_06775556AC3F4A9197447A5CEB747A64 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -58,5 +58,5 @@ jobs:
         with:
           app-name: 'zanflow-api'
           slot-name: 'Production'
-          package: '*.jar'
+          package: '*.war'
           
