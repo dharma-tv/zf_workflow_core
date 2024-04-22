@@ -63,5 +63,5 @@ jobs:
         with:
           app-name: 'zanflow-api'
           slot-name: 'Production'
-          package: '/wwwroot/app.jar'
+          package: 'app.jar'
           
