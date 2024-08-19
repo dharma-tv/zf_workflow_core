@@ -1,12 +1,12 @@
 plugins {
 	id 'org.springframework.boot' version '2.2.4.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-        id "com.microsoft.azure.azurewebapp" version "1.7.1"
 	id 'java'
 }
 
+
 group = 'com.zanflow'
-sourceCompatibility = 8
+sourceCompatibility = 11
 
 
 repositories {
@@ -58,12 +58,9 @@ dependencies {
 	implementation group: 'org.thymeleaf', name:'thymeleaf', version:'3.0.11.RELEASE'
 	implementation group: 'org.xhtmlrenderer', name:'flying-saucer-pdf', version:'9.1.20'
 	implementation group: 'org.json', name: 'json', version: '20190722'
-	implementation group: 'com.google.cloud.sql', name: 'postgres-socket-factory', version: '1.4.0'
 	implementation( 'com.amazonaws:aws-java-sdk-s3:1.11.750'){
 		exclude group: 'org.mortbay.jetty', module:'servlet-api'
 	}
-    implementation group: 'org.hibernate', name: 'hibernate-hikaricp', version: '5.4.10.Final'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '2.7.8'
 
     
     implementation platform('com.google.cloud:libraries-bom:23.0.0')
@@ -73,14 +70,17 @@ dependencies {
 	implementation 'org.postgresql:postgresql'
 	//providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.0.6'
-
+    implementation group: 'org.hibernate', name: 'hibernate-hikaricp', version: '5.4.10.Final'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '2.7.8'
 }
 
-//war {
-//    classpath = classpath.filter {File file ->
-//        return !((file.name).endsWith(".jar"))
-//    }
-//}
+
+
+/*war {
+    classpath = classpath.filter {File file ->
+        return !((file.name).endsWith(".jar"))
+    }
+}*/
 
 test {
 	useJUnitPlatform()

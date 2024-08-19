@@ -25,23 +25,7 @@
     		
     		 
         <properties>   
-                          
-           <!--     <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://otto.db.elephantsql.com/dzuftbrz?stringtype=unspecified" />
-             <property name="hibernate.show-sql" value="true"/>
-             <property name="javax.persistence.jdbc.user" value="dzuftbrz" />
-             <property name="javax.persistence.jdbc.password" value="SLvVm9hy1o-sKCoiwqv-292FCQi1sANz" />
-             <property name="hibernate.default_schema" value="zanflowdb"/>
-             <property name="hibernate.dialect" 
-                  value="org.hibernate.dialect.PostgreSQLDialect"/> -->
-          
-          
-             <!--      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://google/postgres?cloudSqlInstance=zanflow:us-central1:zanflowdb&amp;socketFactory=com.google.cloud.sql.postgres.SocketFactory&amp;stringtype=unspecified" />
-             <property name="hibernate.show-sql" value="true"/>
-             <property name="javax.persistence.jdbc.user" value="zanflowdb_user" />
-             <property name="javax.persistence.jdbc.password" value="Nocodedb2020#" />
-             <property name="hibernate.default_schema" value="zanflowdb"/>
-             <property name="hibernate.dialect" 
-                  value="org.hibernate.dialect.PostgreSQLDialect"/>  -->
+
             
                <!--  Local DB -->
             <!--              <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified" />
@@ -53,45 +37,22 @@
                   value="org.hibernate.dialect.PostgreSQLDialect"/>   -->
                   
                     <!--  Azure DB -->
-                    <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://zanflow-db.postgres.database.azure.com:5432/postgres?stringtype=unspecified" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://zanflow-db.cfs2g0qkeb90.us-east-2.rds.amazonaws.com:5432/postgres?stringtype=unspecified" />
             <property name="hibernate.show-sql" value="true"/>
             <property name="javax.persistence.jdbc.user" value="zanflowdb_user" />
-            <property name="javax.persistence.jdbc.password" value="Nocodedb2020#" />
+            <property name="javax.persistence.jdbc.password" value="Nocodedb2024#" />
             <property name="hibernate.default_schema" value="zanflowdb"/>
             <property name="hibernate.dialect" 
                   value="org.hibernate.dialect.PostgreSQLDialect"/> 
                   
-                  <!--  Hostinger DB -->
-          <!--     <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified" />
-            <property name="hibernate.show-sql" value="true"/>
-            <property name="javax.persistence.jdbc.user" value="zanflowdb_user" />
-            <property name="javax.persistence.jdbc.password" value="Nocodedb2023#" />
-            <property name="hibernate.default_schema" value="zanflowdb"/>
-            <property name="hibernate.dialect" 
-                  value="org.hibernate.dialect.PostgreSQLDialect"/>   -->
-                  
-
+        
             <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
             <property name="hibernate.hikari.connectionTimeout" value="20000"/>
             <property name="hibernate.hikari.minimumIdle" value="5"/>
             <property name="hibernate.hikari.maximumPoolSize" value="10"/>
             <property name="hibernate.hikari.idleTimeout" value="300000"/> 
         
-             
-           <!--  <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
-            
-            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://zanflowdb-1.cvtvkxszdfev.ap-south-1.rds.amazonaws.com:5432/postgres?stringtype=unspecified" />
-            <property name="hibernate.show-sql" value="true"/>
-            <property name="javax.persistence.jdbc.user" value="zanflow" />
-            <property name="javax.persistence.jdbc.password" value="zanflow#2020" />
-            
-          
-            
-            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified" />
-            <property name="hibernate.show-sql" value="true"/>
-            <property name="javax.persistence.jdbc.user" value="postgres" />
-            <property name="javax.persistence.jdbc.password" value="postgres" />
-            <property name="hibernate.default_schema" value="sandbox"/>  -->
+
         </properties>
     </persistence-unit>
 </persistence>

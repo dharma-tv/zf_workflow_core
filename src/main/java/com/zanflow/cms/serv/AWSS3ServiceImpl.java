@@ -34,6 +34,11 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AWSS3ServiceImpl.class);
 
+	@Value("${aws.s3.secret}")
+	private String awssecret;
+
+	@Value("${aws.s3.accesskey}")
+	private String accessKey;
 	
 	@Override
 	// @Async annotation ensures that the method is executed in a different background thread 
@@ -96,6 +101,7 @@ public class AWSS3ServiceImpl implements StorageService {
 			s3client.shutdown();
 		} catch (Exception e) {
 			// TODO: handle exception
+			e.printStackTrace();
 		}
 		
 	}
@@ -113,7 +119,8 @@ public class AWSS3ServiceImpl implements StorageService {
 	}
 
 	public AmazonS3 getAmazonS3Cient(String companycode) {
-		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(AppProperties.getInstance().getPropery(Constants.S3_ACCESS_KEY),AppProperties.getInstance().getPropery(Constants.S3_SECRET));//"AKIAIG3EM5LTKVT6ZOUA","BHKQ64B9L1RC2Gxz3E/UHr0xXy4kjy+vENTo+KgE");
+		System.out.println(accessKey + " -- " + awssecret);
+		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials("","");
 		// Get AmazonS3 client and return the s3Client object.
 		return AmazonS3ClientBuilder
 				.standard()
@@ -123,7 +130,7 @@ public class AWSS3ServiceImpl implements StorageService {
 	}
 
 	private String getRegion(String companycode) {
-		return AppProperties.getInstance().getPropery(Constants.S3_REGION);
+		return "us-east-2"; //AppProperties.getInstance().getPropery(Constants.S3_REGION);
 	}
 	
 	private String getBucketName(String companycode) {

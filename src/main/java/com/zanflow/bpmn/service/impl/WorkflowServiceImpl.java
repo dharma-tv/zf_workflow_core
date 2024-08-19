@@ -47,6 +47,7 @@ import com.zanflow.bpmn.service.notification.NotificationHelper;
 import com.zanflow.bpmn.util.screen.FunctionsUtil;
 import com.zanflow.bpmn.util.screen.MasterHelper;
 import com.zanflow.cms.serv.GoogleCloudStorageServiceImpl;
+import com.zanflow.cms.serv.AWSS3ServiceImpl;
 import com.zanflow.cms.serv.StorageService;
 import com.zanflow.common.db.Constants;
 import com.zanflow.sec.dao.UserMgmtDAO;
@@ -711,7 +712,7 @@ public class WorkflowServiceImpl
 			objBPMNTaskDAO.begin();
 			TXNDocments objTXNDocments=objBPMNTaskDAO.createDocument(bpmnTxRefNo, stepName, fileObj.getOriginalFilename(), null,userId, companyCode,fileObj.getContentType(), null);
 			objBPMNTaskDAO.commit();
-			StorageService service = new GoogleCloudStorageServiceImpl();
+			StorageService service = new AWSS3ServiceImpl();
 			service.uploadFile(fileObj, companyCode,objTXNDocments.getDocumentId());
 			if(objTXNDocments!=null)
 			{

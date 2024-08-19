@@ -38,6 +38,7 @@ import com.zanflow.bpmn.model.TXNDocments;
 import com.zanflow.bpmn.service.impl.WorkflowServiceImpl;
 import com.zanflow.cms.serv.AWSS3ServiceImpl;
 import com.zanflow.cms.serv.GoogleCloudStorageServiceImpl;
+import com.zanflow.cms.serv.StorageService;
 import com.zanflow.common.db.Constants;
 
 @RestController
@@ -358,7 +359,7 @@ public class WorkflowService {
 			 long docId=Long.parseLong(documentId);
 			 TXNDocments objTxnDocments=objWorkflowServiceImpl.getDocument(docId);
 			 /*REtrieve document content from S3 content store*/
-			 GoogleCloudStorageServiceImpl s3service = new GoogleCloudStorageServiceImpl();
+			 AWSS3ServiceImpl s3service = new AWSS3ServiceImpl();
 			 objTxnDocments.setDocument(s3service.getDocument(objTxnDocments.getCompanyCode(), documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf("."))));
 			 HttpHeaders header = new HttpHeaders();
 			 header.setContentType(MediaType.valueOf(objTxnDocments.getDocumentType()));
@@ -387,8 +388,8 @@ public class WorkflowService {
 			 long docId=Long.parseLong(documentId);
 			 TXNDocments objTxnDocments=objWorkflowServiceImpl.getDocument(docId);
 			 int docCount=objWorkflowServiceImpl.deleteDocument(companyCode,docId);
-			 GoogleCloudStorageServiceImpl service = new GoogleCloudStorageServiceImpl();
-			 service.deleteFileBucket(companyCode, documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf(".")));
+			 AWSS3ServiceImpl service = new AWSS3ServiceImpl();
+			 service.deleteFileS3Bucket(companyCode, documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf(".")));
 			 objResponseDTO.setResponseCode("SUCCESS");
 			 objResponseDTO.setResponsMsg(docCount+"#File deleted successfully");
 		 }
