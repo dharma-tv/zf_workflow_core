@@ -120,7 +120,7 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	public AmazonS3 getAmazonS3Cient(String companycode) {
 		System.out.println(accessKey + " -- " + awssecret);
-		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials("","");
+		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey,awssecret);
 		// Get AmazonS3 client and return the s3Client object.
 		return AmazonS3ClientBuilder
 				.standard()
