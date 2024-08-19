@@ -34,6 +34,7 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AWSS3ServiceImpl.class);
 
+	
 	@Value("${aws.s3.secret}")
 	private String awssecret;
 
