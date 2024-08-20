@@ -154,7 +154,7 @@ public class AWSS3ServiceImpl implements StorageService {
 	}
 	
 	public static void main(String args[]) {
-		AWSS3ServiceImpl service = new AWSS3ServiceImpl();
+		AWSS3ServiceImpl service = new AWSS3ServiceImpl("","");
 		//AmazonS3 s3client = service.getAmazonS3Cient("easygst");
 		//IOUtils.toByteArray(s3client.getObject("zanflow-docs", "299").getObjectContent());
 		//s3client.putObject("zanflow-docs", "easygst/", IOUtils.toByteArray(s3client.getObject("zanflow-docs", "299").getObjectContent()));
