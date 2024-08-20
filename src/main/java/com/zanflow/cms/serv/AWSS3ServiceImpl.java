@@ -36,12 +36,17 @@ public class AWSS3ServiceImpl implements StorageService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AWSS3ServiceImpl.class);
 
 	
-	@Value("${aws.s3.secret}")
+	
 	private String awssecret;
 
-	@Value("${aws.s3.accesskey}")
+	
 	private String accessKey;
 	
+	public AWSS3ServiceImpl(@Value("${aws.s3.accesskey}") String accessKey, @Value("${aws.s3.secret}") String awssecret) {
+		// TODO Auto-generated constructor stub
+		this.accessKey = accessKey;
+		this.awssecret = awssecret;
+	}
 	
 	@Override
 	// @Async annotation ensures that the method is executed in a different background thread 
@@ -123,7 +128,7 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	public AmazonS3 getAmazonS3Cient(String companycode) {
 		System.out.println(accessKey + " -- " + awssecret);
-		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(environment.getProperty("aws.s3.accesskey"),environment.getProperty("aws.s3.secret"));
+		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey,awssecret);
 		// Get AmazonS3 client and return the s3Client object.
 		return AmazonS3ClientBuilder
 				.standard()
