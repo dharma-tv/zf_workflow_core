@@ -28,6 +28,7 @@ import com.amazonaws.util.IOUtils;
 import com.zanflow.bpmn.exception.ApplicationException;
 import com.zanflow.bpmn.util.AppProperties;
 import com.zanflow.common.db.Constants;
+import org.springframework.core.env.Environment;
 
 @Service
 public class AWSS3ServiceImpl implements StorageService {
@@ -40,6 +41,9 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	@Value("${aws.s3.accesskey}")
 	private String accessKey;
+	
+	@Autowired
+	private Environment environment;
 	
 	@Override
 	// @Async annotation ensures that the method is executed in a different background thread 
@@ -121,7 +125,8 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	public AmazonS3 getAmazonS3Cient(String companycode) {
 		System.out.println(accessKey + " -- " + awssecret);
-		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey,awssecret);
+		System.out.println(environment.getProperty("aws.s3.accesskey") + " -- " + environment.getProperty("aws.s3.secret"));
+		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(environment.getProperty("aws.s3.accesskey"),environment.getProperty("aws.s3.secret"));
 		// Get AmazonS3 client and return the s3Client object.
 		return AmazonS3ClientBuilder
 				.standard()
