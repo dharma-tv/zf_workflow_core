@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.AutoWired;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.zanflow.bpmn.dao.ProcessDAO;
@@ -45,6 +46,8 @@ import com.zanflow.common.db.Constants;
 @CrossOrigin(origins = "*" ,allowedHeaders ="*")
 public class WorkflowService {
 
+	@Autowired
+	private AWSS3ServiceImpl s3service;
 	
 	@RequestMapping(value="/getTaskList/{companyCode}/{userId}/{filterType}/{filterValue}/{bpmnid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ArrayList<TaskDTO> getTaskList(HttpServletRequest request, HttpServletResponse 
@@ -335,7 +338,7 @@ public class WorkflowService {
 		 TXNDocumentDTO objTXNDocumentDTO=null;
 		 try
 		 {
-			 objTXNDocumentDTO=objWorkflowServiceImpl.uploadDocument(companyCode, bpmnTxRefNo, stepName, userId, fileObj);
+			 objTXNDocumentDTO=objWorkflowServiceImpl.uploadDocument(s3service, companyCode, bpmnTxRefNo, stepName, userId, fileObj);
 			 objTXNDocumentDTO.setResponseCode("SUCCESS");
 			 objTXNDocumentDTO.setResponsMsg("File Uploaded successfully");
 		 }
@@ -359,7 +362,7 @@ public class WorkflowService {
 			 long docId=Long.parseLong(documentId);
 			 TXNDocments objTxnDocments=objWorkflowServiceImpl.getDocument(docId);
 			 /*REtrieve document content from S3 content store*/
-			 AWSS3ServiceImpl s3service = new AWSS3ServiceImpl();
+			 //AWSS3ServiceImpl s3service = new AWSS3ServiceImpl();
 			 objTxnDocments.setDocument(s3service.getDocument(objTxnDocments.getCompanyCode(), documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf("."))));
 			 HttpHeaders header = new HttpHeaders();
 			 header.setContentType(MediaType.valueOf(objTxnDocments.getDocumentType()));
@@ -388,8 +391,8 @@ public class WorkflowService {
 			 long docId=Long.parseLong(documentId);
 			 TXNDocments objTxnDocments=objWorkflowServiceImpl.getDocument(docId);
 			 int docCount=objWorkflowServiceImpl.deleteDocument(companyCode,docId);
-			 AWSS3ServiceImpl service = new AWSS3ServiceImpl();
-			 service.deleteFileS3Bucket(companyCode, documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf(".")));
+			 //AWSS3ServiceImpl service = new AWSS3ServiceImpl();
+			 s3service.deleteFileS3Bucket(companyCode, documentId+objTxnDocments.getDocumentName().substring(objTxnDocments.getDocumentName().indexOf(".")));
 			 objResponseDTO.setResponseCode("SUCCESS");
 			 objResponseDTO.setResponsMsg(docCount+"#File deleted successfully");
 		 }

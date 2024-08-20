@@ -701,7 +701,7 @@ public class WorkflowServiceImpl
 		return task;
 	}
 	
-	public TXNDocumentDTO uploadDocument(String companyCode,String bpmnTxRefNo,String stepName,String userId,MultipartFile fileObj) throws Exception
+	public TXNDocumentDTO uploadDocument(AWSS3ServiceImpl s3service, String companyCode,String bpmnTxRefNo,String stepName,String userId,MultipartFile fileObj) throws Exception
 	{
 		BPMNTaskDAO objBPMNTaskDAO=null;
 		TXNDocumentDTO objTXNDocumentDTO=null;
@@ -712,8 +712,8 @@ public class WorkflowServiceImpl
 			objBPMNTaskDAO.begin();
 			TXNDocments objTXNDocments=objBPMNTaskDAO.createDocument(bpmnTxRefNo, stepName, fileObj.getOriginalFilename(), null,userId, companyCode,fileObj.getContentType(), null);
 			objBPMNTaskDAO.commit();
-			StorageService service = new AWSS3ServiceImpl();
-			service.uploadFile(fileObj, companyCode,objTXNDocments.getDocumentId());
+			//StorageService service = new AWSS3ServiceImpl();
+			s3service.uploadFile(fileObj, companyCode,objTXNDocments.getDocumentId());
 			if(objTXNDocments!=null)
 			{
 				objTXNDocumentDTO=new TXNDocumentDTO();

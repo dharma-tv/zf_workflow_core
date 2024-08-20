@@ -42,8 +42,6 @@ public class AWSS3ServiceImpl implements StorageService {
 	@Value("${aws.s3.accesskey}")
 	private String accessKey;
 	
-	@Autowired
-	private Environment environment;
 	
 	@Override
 	// @Async annotation ensures that the method is executed in a different background thread 
@@ -125,7 +123,6 @@ public class AWSS3ServiceImpl implements StorageService {
 
 	public AmazonS3 getAmazonS3Cient(String companycode) {
 		System.out.println(accessKey + " -- " + awssecret);
-		System.out.println(environment.getProperty("aws.s3.accesskey") + " -- " + environment.getProperty("aws.s3.secret"));
 		final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(environment.getProperty("aws.s3.accesskey"),environment.getProperty("aws.s3.secret"));
 		// Get AmazonS3 client and return the s3Client object.
 		return AmazonS3ClientBuilder
